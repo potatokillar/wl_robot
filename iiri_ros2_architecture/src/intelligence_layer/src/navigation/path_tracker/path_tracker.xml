@@ -1,0 +1,22 @@
+<class_libraries>
+  <library path="simple_path_tracker">
+    <class name="path_tracker/SimplePathTracker" type="path_tracker::SimplePathTracker" base_class_type="navigation_core::BasePathTracker">
+      <description>Pure path point follow algorithem</description>
+    </class>
+  </library>
+  <library path="basic_path_tracker">
+    <class name="path_tracker/BasicPathTracker" type="path_tracker::BasicPathTracker" base_class_type="navigation_core::BasePathTracker">
+      <description>Basic path tracker without Ceres dependency using geometric calculations</description>
+    </class>
+  </library>
+  <library path="simple_progress_checker">
+    <class name="path_tracker/SimpleProgressChecker" type="path_tracker::SimpleProgressChecker" base_class_type="navigation_core::BaseProgressChecker">
+      <description>A simple process checker that only verifies whether movement has occurred</description>
+    </class>
+  </library>
+  <library path="simple_goal_checker">
+    <class name="path_tracker/SimpleGoalChecker" type="path_tracker::SimpleGoalChecker" base_class_type="navigation_core::BaseGoalChecker">
+      <description>A simple goal checker that only verifies if is close to the path end</description>
+    </class>
+  </library>
+</class_libraries>

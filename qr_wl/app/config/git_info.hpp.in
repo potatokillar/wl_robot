@@ -1,0 +1,20 @@
+#pragma once
+
+// Git信息，在CMake配置时自动生成
+#define GIT_BRANCH "@GIT_BRANCH@"
+#define GIT_COMMIT "@GIT_COMMIT@"
+#define GIT_COMMIT_SHORT "@GIT_COMMIT_SHORT@"
+#define GIT_TAG "@GIT_TAG@"
+#define SOFTWARE_VERSION "@SOFTWARE_VERSION@"
+#define VERSION_MODE "@VERSION_MODE@"
+#define BUILD_TIMESTAMP "@BUILD_TIMESTAMP@"
+
+namespace GitInfo {
+    constexpr const char* branch = GIT_BRANCH;
+    constexpr const char* commit = GIT_COMMIT;
+    constexpr const char* commitShort = GIT_COMMIT_SHORT;
+    constexpr const char* tag = GIT_TAG;
+    constexpr const char* softwareVersion = SOFTWARE_VERSION;
+    constexpr const char* versionMode = VERSION_MODE;
+    constexpr const char* buildTimestamp = BUILD_TIMESTAMP;
+}

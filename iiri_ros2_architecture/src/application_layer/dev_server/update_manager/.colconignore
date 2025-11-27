@@ -1,0 +1,2 @@
+# Prevent colcon from building this package
+# update_manager must be built independently

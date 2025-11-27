@@ -1,0 +1,7 @@
+# 人型机器人，用mit电机
+
+
+include = "human-gazebo.toml"
+
+devModel = "human-mit"
+ctrModel = "human-mit"

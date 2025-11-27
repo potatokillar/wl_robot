@@ -1,0 +1,6 @@
+# 狗移动指令，是一个阶段任务
+geometry_msgs/Twist vel
+Pose pos
+int32 ms    #0 表示不限时
+---
+int8 result

@@ -1,0 +1,12 @@
+fpfh_ransac_node:
+  ros__parameters:
+    normal_estimation_radius: 2.0
+    search_radius: 4.0
+
+    voxel_based: True
+    max_iterations: 1000000
+    matching_budget: 10000
+    max_correspondence_distance: 1.0
+    similarity_threshold: 0.5
+    correspondence_randomness: 2
+    min_inlier_fraction: 0.25

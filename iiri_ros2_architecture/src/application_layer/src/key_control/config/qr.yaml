@@ -1,0 +1,3 @@
+/key_qr: 
+  ros__parameters: 
+    js: "/dev/input/js0"

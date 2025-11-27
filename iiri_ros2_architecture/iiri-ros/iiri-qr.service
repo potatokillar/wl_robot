@@ -1,0 +1,22 @@
+# 请放入/lib/systemd/system中，必须注意先检查下配置文件
+[Unit]
+Description = qr_wl autorun service
+After = network-online.target
+
+[Service]
+Type = simple
+
+# 当不指定 User 时，默认以 root 权限运行
+User=wl
+Group=wl
+
+# 启动前预创建 OTA 更新状态文件（+ 表示以 root 权限运行）
+ExecStartPre=+/usr/local/bin/init_update_status.sh
+
+ExecStart = /home/wl/autorun/iiri-qr/qr_start.sh
+ExecStop = /home/wl/autorun/iiri-qr/qr_stop.sh
+ExecReload = /home/wl/autorun/iiri-qr/qr_stop.sh && /home/wl/autorun/iiri-qr/qr_start.sh
+WorkingDirectory = /home/wl/autorun/iiri-qr
+
+[Install]
+WantedBy = multi-user.target

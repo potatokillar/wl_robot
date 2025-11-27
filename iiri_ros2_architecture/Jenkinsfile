@@ -1,0 +1,688 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(
+            numToKeepStr: '10',        // 保留最近10次构建
+            artifactNumToKeepStr: '5'  // 保留最近5次构建的产物
+        ))
+    }
+
+    parameters {
+        choice(
+            name: 'ARCHITECTURE',
+            choices: ['x86', 'arm'],
+            description: '目标架构'
+        )
+        choice(
+            name: 'BUILD_MODE',
+            choices: ['debug', 'release'],
+            description: '''ARM 构建模式（仅 ARM 架构生效）
+            - debug: Jenkins QEMU 编译（Debug 模式，有限制，快速测试）
+            - release: Orin 硬件编译（Release 模式，无限制，生产发布）'''
+        )
+        booleanParam(
+            name: 'ENABLE_CERES',
+            defaultValue: false,
+            description: '是否启用 Ceres 优化（仅影响 intelligence_layer）'
+        )
+    }
+
+    triggers {
+        // 每12小时自动构建一次（不管是否有代码变更）
+        cron('H */12 * * *')
+    }
+
+    environment {
+        GIT_REPO = 'http://192.168.1.55/ontology/iiri_ros2_architecture.git'
+        GIT_BRANCH = 'master'
+        GIT_CREDENTIALS = 'http://root:westlake@192.168.1.55'
+        DOCKER_IMAGE_X86 = '192.168.1.93/iiri/build_x86_ros2:latest'
+        DOCKER_IMAGE_ARM = '192.168.1.93/iiri/build_arm_ros2:latest'
+        CI = 'true'  // 标记为 CI 环境,禁用 docker -it 参数
+    }
+
+    stages {
+        stage('清理工作空间') {
+            steps {
+                echo '=== 清理旧的工作空间 ==='
+                deleteDir()
+            }
+        }
+
+        stage('拉取主仓库') {
+            steps {
+                echo '=== 拉取主仓库代码 ==='
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${GIT_BRANCH}"]],
+                    userRemoteConfigs: [[
+                        url: "${GIT_REPO}",
+                        credentialsId: 'git-cred'
+                    ]]
+                ])
+            }
+        }
+
+        stage('配置 Git 凭据并导入分层代码') {
+            steps {
+                echo '=== 配置 Git 凭据 ==='
+                sh '''
+                    git config --global credential.helper store
+                    echo "${GIT_CREDENTIALS}" > ~/.git-credentials
+                    git config --global user.name "Jenkins CI"
+                    git config --global user.email "jenkins@iiri.local"
+                '''
+
+                echo '=== 检查 vcstool ==='
+                sh '''
+                    set +e  # 暂时禁用错误立即退出
+
+                    echo "诊断信息:"
+                    echo "  PATH: $PATH"
+                    echo "  检查 vcs 命令:"
+                    command -v vcs
+                    VCS_CHECK=$?
+
+                    echo "  检查 which vcs:"
+                    which vcs
+                    WHICH_CHECK=$?
+
+                    set -e  # 重新启用错误立即退出
+
+                    # 判断 vcstool 是否安装
+                    if [ $VCS_CHECK -ne 0 ] || [ $WHICH_CHECK -ne 0 ]; then
+                        echo ""
+                        echo "ERROR: vcstool 未安装在 Jenkins 服务器上"
+                        echo ""
+                        echo "请在 Jenkins 容器或宿主机中安装 vcstool:"
+                        echo "  # 使用 pip 安装"
+                        echo "  pip3 install vcstool --break-system-packages"
+                        echo ""
+                        echo "  # 或者在容器中安装"
+                        echo "  docker exec -it -u root <jenkins_container_id> bash"
+                        echo "  apt-get update && apt-get install -y python3-pip"
+                        echo "  pip3 install vcstool --break-system-packages"
+                        echo "  exit"
+                        echo ""
+                        echo "详细说明请查看: jenkins/INSTALL_VCSTOOL.md"
+                        exit 1
+                    fi
+
+                    echo ""
+                    echo "=== vcstool 版本 ==="
+                    vcs --version
+                '''
+
+                echo '=== 检查项目结构 ==='
+                sh '''
+                    echo "=== 检查关键文件 ==="
+                    ls -la script/build_layered.sh || echo "ERROR: script/build_layered.sh 不存在"
+                    ls -la build_layered.sh || echo "ERROR: build_layered.sh 不存在"
+                '''
+
+                echo '=== 导入分层代码 ==='
+                sh '''
+                    # 显示当前配置
+                    echo "=== 当前 .repos 配置 ==="
+                    cat .repos
+
+                    # 使用 sync.sh 导入所有分层代码
+                    chmod +x sync.sh
+                    ./sync.sh import
+
+                    # 显示导入状态
+                    echo "=== 已导入的仓库 ==="
+                    ./sync.sh status
+                '''
+            }
+        }
+
+        stage('检查 Docker') {
+            steps {
+                echo '=== 检查 Docker 可用性 ==='
+                sh '''
+                    set +e
+
+                    echo "诊断信息:"
+                    echo "  PATH: $PATH"
+                    echo "  检查 docker 命令:"
+                    command -v docker
+                    DOCKER_CHECK=$?
+
+                    set -e
+
+                    # 判断 docker 是否可用（只使用 command -v）
+                    if [ $DOCKER_CHECK -ne 0 ]; then
+                        echo ""
+                        echo "ERROR: Docker 未安装或不在 PATH 中"
+                        echo ""
+                        echo "请确保:"
+                        echo "  1. Docker 已安装"
+                        echo "  2. Docker 在 PATH 中或位于 /usr/local/bin/docker"
+                        echo "  3. Docker socket 已挂载"
+                        echo ""
+                        echo "详细说明请查看: jenkins/DOCKER_ACCESS.md"
+                        exit 1
+                    fi
+
+                    echo ""
+                    echo "=== Docker 版本 ==="
+                    docker --version
+
+                    echo ""
+                    echo "=== 测试 Docker 运行 ==="
+                    if docker ps >/dev/null 2>&1; then
+                        echo "✓ Docker 访问正常"
+                        docker ps --format "table {{.Names}}\t{{.Status}}" | head -5
+                    else
+                        echo "ERROR: 无法访问 Docker socket"
+                        echo "请检查:"
+                        echo "  1. Docker socket 是否挂载: /var/run/docker.sock"
+                        echo "  2. Socket 权限: chmod 666 /var/run/docker.sock"
+                        exit 1
+                    fi
+                '''
+            }
+        }
+
+        stage('拉取 Docker 镜像') {
+            steps {
+                script {
+                    def dockerImage = params.ARCHITECTURE == 'x86' ? env.DOCKER_IMAGE_X86 : env.DOCKER_IMAGE_ARM
+
+                    echo "=== 拉取最新 Docker 镜像 ==="
+                    echo "目标镜像: ${dockerImage}"
+
+                    sh """
+                        echo "正在拉取镜像..."
+                        docker pull ${dockerImage}
+
+                        echo ""
+                        echo "=== 镜像信息 ==="
+                        docker images ${dockerImage} --format "table {{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedAt}}"
+
+                        echo ""
+                        echo "✓ 镜像拉取完成"
+                    """
+                }
+            }
+        }
+
+        stage('编译 Core Layer') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+
+                    if (params.ARCHITECTURE == 'arm' && params.BUILD_MODE == 'release') {
+                        // ARM Release: Orin 硬件编译（无限制）
+                        echo "🚀 ARM Release 模式：Orin 硬件编译 (192.168.1.61)"
+
+                        sh """
+                            echo "🏷️  生成 Layer 版本信息..."
+                            bash jenkins/generate_layer_versions.sh
+                        """
+
+                        sh """
+                            echo "📦 同步代码到 Orin（包含 Git 信息）..."
+                            sshpass -p '123456' rsync -avz --delete \
+                                --exclude 'build_*_shared' \
+                                --exclude 'iiri-ros/install' \
+                                ./ wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/
+                        """
+
+                        sh """
+                            echo "🐳 在 Orin 上拉取最新 Docker 镜像..."
+                            sshpass -p '123456' ssh -o StrictHostKeyChecking=no wl@192.168.1.61 \
+                                "docker pull ${env.DOCKER_IMAGE_ARM}"
+
+                            echo ""
+                            echo "=== Orin 上的镜像信息 ==="
+                            sshpass -p '123456' ssh -o StrictHostKeyChecking=no wl@192.168.1.61 \
+                                "docker images ${env.DOCKER_IMAGE_ARM} --format 'table {{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedAt}}'"
+
+                            echo ""
+                            echo "✓ Orin 镜像拉取完成"
+                        """
+
+                        sh """
+                            echo "🔨 在 Orin 上编译 core_layer (Release 模式，并行编译)..."
+
+                            # 确保脚本有执行权限
+                            sshpass -p '123456' ssh -o StrictHostKeyChecking=no wl@192.168.1.61 \
+                                "chmod +x ~/jenkins_builds/build_${BUILD_NUMBER}/build_layered.sh"
+
+                            # 执行编译
+                            sshpass -p '123456' ssh -o StrictHostKeyChecking=no wl@192.168.1.61 \
+                                "cd ~/jenkins_builds/build_${BUILD_NUMBER} && ./build_layered.sh -c arm ${ceresFlag} core_layer"
+                        """
+
+                        sh """
+                            set +e  # 允许命令失败，手动处理错误
+                            echo "📥 同步编译结果回 Jenkins..."
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/build_arm_shared/ \
+                                ./build_arm_shared/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ build_arm_shared 同步完成 (exit code: \$rsync_exit_code)"
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/iiri-ros/ \
+                                ./iiri-ros/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ iiri-ros 同步完成 (exit code: \$rsync_exit_code)"
+
+                            set -e  # 恢复错误立即退出
+                        """
+
+                    } else {
+                        // 本地编译：x86 或 ARM Debug (QEMU)
+                        if (params.ARCHITECTURE == 'arm') {
+                            echo "💻 ARM Debug 模式：Jenkins QEMU 编译 (Debug 模式，有限制)"
+                        } else {
+                            echo "💻 x86 本地编译"
+                        }
+
+                        sh """
+                            ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} core_layer
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('编译 Hardware Layer') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+
+                    if (params.ARCHITECTURE == 'arm' && params.BUILD_MODE == 'release') {
+                        echo "🚀 ARM Release: Orin 硬件编译 hardware_layer"
+
+                        sh """
+                            # 执行编译
+                            sshpass -p '123456' ssh -o StrictHostKeyChecking=no wl@192.168.1.61 \
+                                "cd ~/jenkins_builds/build_${BUILD_NUMBER} && ./build_layered.sh -c arm ${ceresFlag} hardware_layer"
+                        """
+                        sh """
+                            set +e  # 允许命令失败，手动处理错误
+                            echo "📦 回传编译结果..."
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/build_arm_shared/ \
+                                ./build_arm_shared/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ build_arm_shared 同步完成 (exit code: \$rsync_exit_code)"
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/iiri-ros/ \
+                                ./iiri-ros/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ iiri-ros 同步完成 (exit code: \$rsync_exit_code)"
+
+                            set -e  # 恢复错误立即退出
+                        """
+                    } else {
+                        if (params.ARCHITECTURE == 'arm') {
+                            echo "💻 ARM Debug: Jenkins QEMU 编译 hardware_layer"
+                        } else {
+                            echo "💻 x86: 本地编译 hardware_layer"
+                        }
+                        sh """
+                            ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} hardware_layer
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('编译 Perception Layer') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+
+                    if (params.ARCHITECTURE == 'arm' && params.BUILD_MODE == 'release') {
+                        echo "🚀 ARM Release: Orin 硬件编译 perception_layer"
+
+                        sh """
+                            # 执行编译
+                            sshpass -p '123456' ssh -o StrictHostKeyChecking=no wl@192.168.1.61 \
+                                "cd ~/jenkins_builds/build_${BUILD_NUMBER} && ./build_layered.sh -c arm ${ceresFlag} perception_layer"
+                        """
+                        sh """
+                            set +e  # 允许命令失败，手动处理错误
+                            echo "📦 回传编译结果..."
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/build_arm_shared/ \
+                                ./build_arm_shared/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ build_arm_shared 同步完成 (exit code: \$rsync_exit_code)"
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/iiri-ros/ \
+                                ./iiri-ros/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ iiri-ros 同步完成 (exit code: \$rsync_exit_code)"
+
+                            set -e  # 恢复错误立即退出
+                        """
+                    } else {
+                        if (params.ARCHITECTURE == 'arm') {
+                            echo "💻 ARM Debug: Jenkins QEMU 编译 perception_layer"
+                        } else {
+                            echo "💻 x86: 本地编译 perception_layer"
+                        }
+                        sh """
+                            ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} perception_layer
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('编译 Intelligence Layer') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+
+                    if (params.ARCHITECTURE == 'arm' && params.BUILD_MODE == 'release') {
+                        echo "🚀 ARM Release: Orin 硬件编译 intelligence_layer"
+
+                        sh """
+                            # 执行编译
+                            sshpass -p '123456' ssh -o StrictHostKeyChecking=no wl@192.168.1.61 \
+                                "cd ~/jenkins_builds/build_${BUILD_NUMBER} && ./build_layered.sh -c arm ${ceresFlag} intelligence_layer"
+                        """
+                        sh """
+                            set +e  # 允许命令失败，手动处理错误
+                            echo "📦 回传编译结果..."
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/build_arm_shared/ \
+                                ./build_arm_shared/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ build_arm_shared 同步完成 (exit code: \$rsync_exit_code)"
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/iiri-ros/ \
+                                ./iiri-ros/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ iiri-ros 同步完成 (exit code: \$rsync_exit_code)"
+
+                            set -e  # 恢复错误立即退出
+                        """
+                    } else {
+                        if (params.ARCHITECTURE == 'arm') {
+                            echo "💻 ARM Debug: Jenkins QEMU 编译 intelligence_layer"
+                        } else {
+                            echo "💻 x86: 本地编译 intelligence_layer"
+                        }
+                        sh """
+                            ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} intelligence_layer
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('构建前端 (Frontend)') {
+            options {
+                timeout(time: 15, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    echo "=== 构建 Vue3 前端 ==="
+
+                    if (params.ARCHITECTURE == 'arm' && params.BUILD_MODE == 'release') {
+                        echo "🌐 ARM Release: 在 Jenkins 本地构建前端，然后同步到 Orin"
+
+                        sh """
+                            # 进入前端目录并构建
+                            cd src/application_layer/src/dev_server/frontend_src
+
+                            echo "检查 Node.js 环境..."
+                            node --version || echo "Node.js 未安装，请在 Jenkins 容器中安装 Node.js"
+                            npm --version || echo "npm 未安装"
+
+                            echo ""
+                            echo "开始构建前端..."
+                            chmod +x build_frontend.sh
+                            ./build_frontend.sh
+
+                            echo ""
+                            echo "前端构建完成，检查输出..."
+                            ls -lh ../static/
+                        """
+
+                        sh """
+                            echo "同步前端静态文件到 Orin..."
+                            sshpass -p '123456' rsync -avz \
+                                src/application_layer/src/dev_server/static/ \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/src/application_layer/src/dev_server/static/
+
+                            echo ""
+                            echo "✓ 前端文件已同步到 Orin"
+                        """
+                    } else {
+                        echo "🌐 本地构建前端"
+
+                        sh """
+                            # 进入前端目录并构建
+                            cd src/application_layer/src/dev_server/frontend_src
+
+                            echo "检查 Node.js 环境..."
+                            node --version || echo "Node.js 未安装，请在 Jenkins 容器中安装 Node.js"
+                            npm --version || echo "npm 未安装"
+
+                            echo ""
+                            echo "开始构建前端..."
+                            chmod +x build_frontend.sh
+                            ./build_frontend.sh
+
+                            echo ""
+                            echo "前端构建完成，检查输出..."
+                            ls -lh ../static/
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('编译 Application Layer') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+
+                    if (params.ARCHITECTURE == 'arm' && params.BUILD_MODE == 'release') {
+                        echo "🚀 ARM Release: Orin 硬件编译 application_layer (前端已就绪)"
+
+                        sh """
+                            # 执行编译
+                            sshpass -p '123456' ssh -o StrictHostKeyChecking=no wl@192.168.1.61 \
+                                "cd ~/jenkins_builds/build_${BUILD_NUMBER} && ./build_layered.sh -c arm ${ceresFlag} application_layer"
+                        """
+                        sh """
+                            set +e  # 允许命令失败，手动处理错误
+                            echo "📦 回传编译结果..."
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/build_arm_shared/ \
+                                ./build_arm_shared/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ build_arm_shared 同步完成 (exit code: \$rsync_exit_code)"
+
+                            sshpass -p '123456' rsync -avzL \
+                                wl@192.168.1.61:~/jenkins_builds/build_${BUILD_NUMBER}/iiri-ros/ \
+                                ./iiri-ros/
+                            rsync_exit_code=\$?
+                            if [ \$rsync_exit_code -ne 0 ] && [ \$rsync_exit_code -ne 23 ]; then
+                                echo "❌ rsync failed with exit code \$rsync_exit_code"
+                                exit 1
+                            fi
+                            echo "✅ iiri-ros 同步完成 (exit code: \$rsync_exit_code)"
+
+                            set -e  # 恢复错误立即退出
+                        """
+                    } else {
+                        if (params.ARCHITECTURE == 'arm') {
+                            echo "💻 ARM Debug: Jenkins QEMU 编译 application_layer"
+                        } else {
+                            echo "💻 x86: 本地编译 application_layer"
+                        }
+                        sh """
+                            ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} application_layer
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('打包部署包') {
+            steps {
+                echo "=== 打包 iiri-ros 部署包 (${params.ARCHITECTURE}) ==="
+                sh """
+                    # 确保打包脚本可执行
+                    chmod +x deploy_package.sh
+
+                    # 执行打包（生成极简部署包）
+                    ./deploy_package.sh ${params.ARCHITECTURE} deploy_packages
+
+                    # 显示打包结果
+                    echo ""
+                    echo "=== 打包完成 ==="
+                    ls -lh deploy_packages/*.tar.gz
+                    ls -lh deploy_packages/*.sha256 2>/dev/null || echo "(未生成校验文件)"
+
+                    # 显示部署包内容
+                    echo ""
+                    echo "=== 部署包内容预览 ==="
+                    tar -tzf deploy_packages/*.tar.gz | head -20
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                if (params.ARCHITECTURE == 'arm' && params.BUILD_MODE == 'release') {
+                    echo "🧹 清理 Orin 构建目录..."
+                    sh """
+                        sshpass -p '123456' ssh -o StrictHostKeyChecking=no wl@192.168.1.61 \
+                            "echo '123456' | sudo -S rm -rf ~/jenkins_builds/build_${BUILD_NUMBER}" || true
+                    """
+                }
+            }
+        }
+
+        success {
+            echo '=== 所有层编译成功! ==='
+
+            // 归档部署包到Jenkins供下载（主要产物）
+            echo '=== 归档部署包 ==='
+            archiveArtifacts artifacts: "deploy_packages/*.tar.gz",
+                             fingerprint: true,
+                             allowEmptyArchive: false
+
+            // 归档 SHA256 校验文件（如果存在）
+            archiveArtifacts artifacts: "deploy_packages/*.sha256",
+                             fingerprint: false,
+                             allowEmptyArchive: true
+
+            // 归档版本信息
+            archiveArtifacts artifacts: "deploy_packages/*/VERSION.txt",
+                             fingerprint: false,
+                             allowEmptyArchive: true
+
+            // 归档编译日志（次要产物）
+            echo '=== 归档编译日志 ==='
+            archiveArtifacts artifacts: "build_${params.ARCHITECTURE}_shared/*/log/**/*.log",
+                             fingerprint: false,
+                             allowEmptyArchive: true
+
+            echo ''
+            echo '=========================================='
+            echo '🎉 部署包已归档！'
+            echo '=========================================='
+            echo ''
+            echo '📦 从 Jenkins UI 下载部署包后，使用极简部署：'
+            echo ''
+            echo '1️⃣  解压并进入目录：'
+            echo '   tar -xzf iiri-ros-*.tar.gz -C /home/wl/autorun/ && cd /home/wl/autorun/iiri-ros-*'
+            echo ''
+            echo '2️⃣  一键安装（自动创建符号链接并启动服务）：'
+            echo '   sudo ./install.sh'
+            echo ''
+            echo '🔄 版本管理命令：'
+            echo '   列出版本: sudo /home/wl/autorun/switch-version.sh list'
+            echo '   切换版本: sudo /home/wl/autorun/switch-version.sh <版本号>'
+            echo '   回滚版本: sudo /home/wl/autorun/switch-version.sh rollback'
+            echo ''
+            echo '📚 详细说明请查看部署包中的 DEPLOY.md'
+            echo '=========================================='
+        }
+
+        failure {
+            echo '=== 编译失败! ==='
+
+            // 失败时归档日志用于调试
+            echo '=== 归档失败日志 ==='
+            archiveArtifacts artifacts: "build_${params.ARCHITECTURE}_shared/*/log/**/*.log",
+                             fingerprint: false,
+                             allowEmptyArchive: true
+        }
+    }
+}

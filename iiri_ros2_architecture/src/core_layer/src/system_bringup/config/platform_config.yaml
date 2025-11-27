@@ -1,0 +1,152 @@
+# Platform Configuration
+# 定义不同平台的特定配置和推荐设置
+
+# QR Raspberry Pi 平台配置
+qr_raspi:
+  platform_type: "ARM"
+  architecture: "aarch64"
+  max_layer: 3  # 智能层（不包含应用层）
+
+  hardware:
+    cpu_cores: 4
+    memory_gb: 4
+    gpu: false
+
+  launch_config:
+    enable_navigation: true
+    enable_follow: false
+    enable_camera: true
+    enable_audio: true
+    enable_dev_server: false
+    enable_remote_ctrl: false
+
+  performance:
+    control_frequency: 30.0
+    camera_fps: 15
+    costmap_update_frequency: 3.0
+
+# QR NVIDIA Orin 平台配置
+qr_orin:
+  platform_type: "ARM"
+  architecture: "aarch64"
+  max_layer: 4  # 完整应用层
+
+  hardware:
+    cpu_cores: 12
+    memory_gb: 32
+    gpu: true
+    gpu_type: "NVIDIA Orin"
+
+  launch_config:
+    enable_navigation: true
+    enable_follow: true
+    enable_camera: true
+    enable_audio: true
+    enable_dev_server: true
+    enable_remote_ctrl: true
+
+  performance:
+    control_frequency: 50.0
+    camera_fps: 30
+    costmap_update_frequency: 5.0
+    use_gpu_acceleration: true
+
+# QR ARM 通用平台配置
+qr_arm:
+  platform_type: "ARM"
+  architecture: "aarch64"
+  max_layer: 3  # 智能层
+
+  hardware:
+    cpu_cores: 4
+    memory_gb: 8
+    gpu: false
+
+  launch_config:
+    enable_navigation: true
+    enable_follow: false
+    enable_camera: true
+    enable_audio: true
+    enable_dev_server: false
+    enable_remote_ctrl: false
+
+  performance:
+    control_frequency: 40.0
+    camera_fps: 20
+    costmap_update_frequency: 4.0
+
+# QR x86 平台配置（开发/调试）
+qr_x86:
+  platform_type: "x86"
+  architecture: "x86_64"
+  max_layer: 4  # 完整应用层
+
+  hardware:
+    cpu_cores: 8
+    memory_gb: 16
+    gpu: true
+    gpu_type: "NVIDIA GPU"
+
+  launch_config:
+    enable_navigation: true
+    enable_follow: true
+    enable_camera: true
+    enable_audio: true
+    enable_dev_server: true
+    enable_remote_ctrl: true
+    enable_key_control: true  # 调试模式
+
+  performance:
+    control_frequency: 50.0
+    camera_fps: 30
+    costmap_update_frequency: 5.0
+    use_gpu_acceleration: true
+
+# QR Debug 最小化配置
+qr_debug:
+  platform_type: "any"
+  architecture: "any"
+  max_layer: 1  # 仅硬件层
+
+  hardware:
+    cpu_cores: 2
+    memory_gb: 2
+    gpu: false
+
+  launch_config:
+    enable_navigation: false
+    enable_follow: false
+    enable_camera: false
+    enable_audio: false
+    enable_dev_server: false
+    enable_remote_ctrl: false
+    enable_key_control: true  # 启用键盘控制便于调试
+
+  performance:
+    control_frequency: 20.0
+
+# 层级依赖定义
+layer_dependencies:
+  1_hardware:
+    requires: []
+    provides: ["motion_control", "robot_base"]
+
+  2_perception:
+    requires: ["1_hardware"]
+    provides: ["camera_ptz", "speaker", "tts", "speech_recognition"]
+
+  3_intelligence:
+    requires: ["2_perception"]
+    provides: ["navigation", "bt_manager", "smart_follow", "path_tracker"]
+
+  4_application:
+    requires: ["3_intelligence"]
+    provides: ["dev_server", "remote_ctrl", "key_control"]
+
+# 平台到层级映射
+platform_layer_mapping:
+  qr_debug: "1_hardware"
+  qr_raspi: "3_intelligence"
+  qr_arm: "3_intelligence"
+  qr_orin: "4_application"
+  qr_x86: "4_application"

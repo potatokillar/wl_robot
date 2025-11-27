@@ -1,0 +1,19 @@
+/speaker_node:
+  ros__parameters:
+    # 音频文件搜索路径（按优先级顺序）
+    # 部署环境会使用 install 目录的绝对路径
+    audio_dir_array: [
+      '/home/wl/autorun/iiri-ros/install/speech_recognition/share/speech_recognition/audio/',
+      'install/speech_recognition/share/speech_recognition/audio/',
+      'build_x86_shared/install/speech_recognition/share/speech_recognition/audio/',
+      'build_arm_shared/install/speech_recognition/share/speech_recognition/audio/'
+    ]
+    wav_name: [
+                'bo',
+                'ding',
+                'dog_bark2',
+                'service_quit',
+                'service_ready'
+              ]
+    arm_play_device_name: "UACDemoV1.0"
+    x86_play_device_name: "UACDemoV1.0"

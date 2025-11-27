@@ -1,0 +1,55 @@
+<!-- 用于arm演示的相关行为树 测试端口和阻塞任务的使用-->
+<root BTCPP_format="4">
+    <Blackboard>
+        <mode value="abs" />
+        <speed value="0.2" />
+        <acc value="0.3" />
+    </Blackboard>
+    <BehaviorTree ID="ArmGa701">
+        <Sequence>
+            <BtArmEnable enable="true" />
+            <ForceSuccess>
+                <Sequence>
+                    <BtArmMoveJ joint="0.0; 0.8; 0.0; 0.8; 0; 1.57; 0" mode="{mode}"
+                        speed="0.2"
+                        acc="0.3" />
+                    <BtArmMoveL target="0.4; 0.2; 0.3;-3.1416; -0.0290; -3.1416" mode="abs"
+                        speed="0.2"
+                        acc="0.3" />
+                    <BtArmMoveL target="0.4; 0.2; 0.25;-3.1416; -0.0290; -3.1416" mode="abs"
+                        speed="0.2"
+                        acc="0.3" />
+                    <BtArmMoveL target="0.4; 0.2; 0.3;-3.1416; -0.0290; -3.1416" mode="abs"
+                        speed="0.2"
+                        acc="0.3" />
+                    <BtArmMoveL target="0.4; -0.2; 0.3;-3.1416; -0.0290; -3.1416" mode="abs"
+                        speed="0.2"
+                        acc="0.3" />
+                    <BtArmMoveL target="0.4; -0.2; 0.25;-3.1416; -0.0290; -3.1416" mode="abs"
+                        speed="0.2"
+                        acc="0.3" />
+                    <BtArmMoveL target="0.4; -0.2; 0.3;-3.1416; -0.0290; -3.1416" mode="abs"
+                        speed="0.2"
+                        acc="0.3" />
+                    <BtArmMoveL target="0.4; -0.2; 0.25;-3.1416; -0.0290; -3.1416" mode="abs"
+                        speed="0.2"
+                        acc="0.3" />
+                </Sequence>
+            </ForceSuccess>
+            <BtArmMoveJ name="end_pos"
+                joint="0; 0; 0; 0; 0; 0"
+                mode="abs"
+                speed="0.2"
+                acc="0.2" />
+            <BtArmEnable enable="false" />
+        </Sequence>
+    </BehaviorTree>
+    <!-- 用于非监控状态下groot2查看，不用该功能可以不写-->
+    <TreeNodeModel>
+        <Action ID="BtArmEnable">
+            <enable type="bool" default="false" />
+        </Action>
+        <Action ID="BtArmMoveJ" />
+        <Action ID="BtArmMoveL" />
+    </TreeNodeModel>
+</root>

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot name="qa01_description">
+  <link name="world" />
+  <joint name="world_fixed" type="fixed">
+    <parent link="world" />
+    <child link="base_link" />
+  </joint>
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0.000195653402762227 -0.000162311522469217 0.0574958896482889" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.00311361610491872" ixy="-4.99454350054416E-07" ixz="4.79136860967576E-05" iyy="0.00293646133501491" iyz="8.9155188763081E-07" izz="0.0026818264965758" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/base_link.dae" />
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/base_link.dae" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="Link1">
+    <inertial>
+      <origin xyz="3.3791E-05 0.030742 0.030107" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.00097955" ixy="1.0431E-06" ixz="4.3103E-07" iyy="0.00091672" iyz="-0.00025756" izz="0.0008983" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link1.dae" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link1.dae" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Joint1" type="revolute">
+    <origin xyz="-0.00010406 0 0.1065" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="Link1" />
+    <axis xyz="0 0 1" />
+    <dynamics damping="0.01" friction="0.2"/>
+    <limit lower="-3.14" upper="3.14" effort="40" velocity="20" />
+  </joint>
+  <link name="Link2">
+    <inertial>
+      <origin xyz="-0.18482 -0.046183 0.00013831" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.0050066" ixy="-0.00022613" ixz="-9.8666E-06" iyy="0.056029" iyz="-5.1141E-06" izz="0.055834" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link2.dae" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link2.dae" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Joint2" type="revolute">
+    <origin xyz="0 0.041 0.058" rpy="0 0 0" />
+    <parent link="Link1" />
+    <child link="Link2" />
+    <axis xyz="0 1 0" />
+    <dynamics damping="0.01" friction="0.2"/>
+    <limit lower="-3.14" upper="3.14" effort="40" velocity="20" />
+  </joint>
+  <link name="Link3">
+    <inertial>
+      <origin xyz="0.077248 -0.026984 0.072742" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.0032105" ixy="0.00021256" ixz="-0.001008" iyy="0.005396" iyz="0.0002511" izz="0.0038613" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link3.dae" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link3.dae" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Joint3" type="revolute">
+    <origin xyz="-0.41 -0.0095 0" rpy="0 0 0" />
+    <parent link="Link2" />
+    <child link="Link3" />
+    <axis xyz="0 -1 0" />
+    <dynamics damping="0.01" friction="0.2"/>
+    <limit lower="-3.14" upper="3.14" effort="40" velocity="20" />
+  </joint>
+  <link name="Link4">
+    <inertial>
+      <origin xyz="0.19616 -0.0045978 1.2153E-05" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.0024186" ixy="-0.00014288" ixz="6.5518E-07" iyy="0.012898" iyz="1.9994E-06" izz="0.012751" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link4.dae" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link4.dae" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Joint4" type="revolute">
+    <origin xyz="0.1415 -0.0315 0.085" rpy="0 0 0" />
+    <parent link="Link3" />
+    <child link="Link4" />
+    <axis xyz="1 0 0" />
+    <dynamics damping="0.01" friction="0.2"/>
+    <limit lower="-3.14" upper="3.14" effort="40" velocity="20" />
+  </joint>
+  <link name="Link5">
+    <inertial>
+      <origin xyz="0.077697 -0.029029 -6.6015E-05" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.0019348" ixy="0.00025161" ixz="-1.2763E-06" iyy="0.0035651" iyz="-1.7401E-06" izz="0.0031873" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link5.dae" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link5.dae" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Joint5" type="revolute">
+    <origin xyz="0.2495 0.0355 0" rpy="0 0 0" />
+    <parent link="Link4" />
+    <child link="Link5" />
+    <axis xyz="0 1 0" />
+    <dynamics damping="0.01" friction="0.2"/>
+    <limit lower="-3.14" upper="3.14" effort="40" velocity="20" />
+  </joint>
+  <link name="Link6">
+    <inertial>
+      <origin xyz="0.020059 -8.4573E-06 0.00021617" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.00080054" ixy="2.6845E-07" ixz="-1.2762E-06" iyy="0.00049114" iyz="-1.1576E-07" izz="0.00052629" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link6.dae" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/Link6.dae" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="Joint6" type="revolute">
+    <origin xyz="0.1315 -0.0355 0" rpy="0 0 0" />
+    <parent link="Link5" />
+    <child link="Link6" />
+    <axis xyz="1 0 0" />
+    <dynamics damping="0.01" friction="0.2"/>
+    <limit lower="-3.14" upper="3.14" effort="40" velocity="20" />
+  </joint>
+  <link name="GripperDownLink">
+    <inertial>
+      <origin xyz="0.069034 0.0009731 -0.010493" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.00063236" ixy="-2.2107E-06" ixz="0.00032181" iyy="0.0028734" iyz="1.6985E-06" izz="0.0026368" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/GripperDownLink.dae" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/GripperDownLink.dae" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="GripperDownJoint" type="fixed">
+    <origin xyz="0.044 0 -0.00050971" rpy="0 0 0" />
+    <parent link="Link6" />
+    <child link="GripperDownLink" />
+    <axis xyz="0 0 0" />
+    <limit lower="0" upper="0" effort="0" velocity="0" />
+  </joint>
+  <link name="GripperUpLink">
+    <inertial>
+      <origin xyz="0.055484 -0.032158 0.0059289" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.00036094" ixy="-1.028E-05" ixz="0.00029972" iyy="0.0017974" iyz="1.3486E-06" izz="0.0017027" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/GripperUpLink.dae" />
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://qa01_description/meshes/GripperUpLink.dae" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="GripperUpJoint" type="revolute">
+    <origin xyz="0.057 0.0322 0.02251" rpy="0 0 0" />
+    <parent link="GripperDownLink" />
+    <child link="GripperUpLink" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-3.14" upper="3.14" effort="40" velocity="20" />
+  </joint>
+  <transmission name="trans_Joint1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="Joint1">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="Joint1_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="trans_Joint2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="Joint2">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="Joint2_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="trans_Joint3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="Joint3">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="Joint3_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="trans_Joint4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="Joint4">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="Joint4_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="trans_Joint5">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="Joint5">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="Joint5_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="trans_Joint6">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="Joint6">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="Joint6_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="trans_GripperUpJoint">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="GripperUpJoint">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="GripperUpJoint_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+  </gazebo>
+</robot>

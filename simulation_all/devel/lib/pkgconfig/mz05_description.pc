@@ -1,0 +1,8 @@
+prefix=/home/wl/workspace/simulation_all/devel
+
+Name: mz05_description
+Description: Description of mz05_description
+Version: 1.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

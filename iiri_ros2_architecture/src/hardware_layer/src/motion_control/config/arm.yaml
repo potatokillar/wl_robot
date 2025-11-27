@@ -1,0 +1,4 @@
+# SDK的IP
+/arm_node: 
+  ros__parameters: 
+    ip: "192.168.101.198"

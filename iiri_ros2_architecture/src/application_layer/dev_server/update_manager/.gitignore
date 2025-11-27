@@ -1,0 +1,11 @@
+# Build artifacts
+build/
+*.o
+*.o.d
+
+# Deployment packages
+*.tar.gz
+
+# IDE
+.vscode/
+.idea/

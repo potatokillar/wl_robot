@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: iris2
+    relative_path: urdf/iris2.urdf
+    xacro_args: ""
+  SRDF:
+    relative_path: config/iris2.srdf
+  CONFIG:
+    author_name: zhang
+    author_email: zh2362207401@gmail.com
+    generated_timestamp: 1704694213

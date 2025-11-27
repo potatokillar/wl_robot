@@ -1,0 +1,23 @@
+# 前端编译产物
+static/*
+!static/.gitkeep
+
+# 前端依赖
+frontend_src/node_modules/
+frontend_src/dist/
+frontend_src/.vscode/
+frontend_src/.env.local
+frontend_src/.env.*.local
+
+# 日志
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

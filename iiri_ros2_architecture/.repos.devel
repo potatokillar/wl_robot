@@ -1,0 +1,21 @@
+repositories:
+  core_layer:
+    type: git
+    url: http://192.168.1.55/ontology/iiri-core-layer.git
+    version: devel
+  hardware_layer:
+    type: git
+    url: http://192.168.1.55/ontology/iiri-hardware-layer.git
+    version: devel
+  perception_layer:
+    type: git
+    url: http://192.168.1.55/ontology/iiri-perception-layer.git
+    version: devel
+  intelligence_layer:
+    type: git
+    url: http://192.168.1.55/ontology/iiri-intelligence-layer.git
+    version: devel
+  application_layer:
+    type: git
+    url: http://192.168.1.55/ontology/iiri-application-layer.git
+    version: devel

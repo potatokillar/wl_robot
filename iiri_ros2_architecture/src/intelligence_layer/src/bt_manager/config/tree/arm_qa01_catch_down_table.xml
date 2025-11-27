@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+    <BehaviorTree ID="ArmIris">
+        <Sequence>
+            <BtArmEnable enable="true" />
+            <ForceSuccess>
+                <Sequence>
+                    <BtArmMoveJ name="end_pos"
+                        joint="0; -1.5; 1.5; 0; 0; 0"
+                        mode="abs"
+                        speed="0.2"
+                        acc="0.2" />
+                    <BtArmMoveJ name="start"
+                        joint="0.0; 0; 0.8; 0.0; 0.6; 0"
+                        mode="abs" />
+                    <BtArmMoveL name="pos1"
+                        target="0.5; 0; 0.15; 3.1416; 0; 0"
+                        mode="abs" />
+                    <BtSetGripper state="true" speed="1.0" />
+                    <BtArmMoveL name="pos2"
+                        target="0.5; 0; 0.05; 3.1416; 0; 0"
+                        mode="abs" />
+                    <BtSetGripper state="false" speed="1.0" />
+                    <BtArmMoveL name="pos3"
+                        target="0.5; 0; 0.15; 3.1416; 0; 0"
+                        mode="abs" />
+                    <BtArmMoveL name="pos3"
+                        target="0.5; -0.15; 0.15; 3.1416; 0; 0"
+                        mode="abs" />
+                    <BtArmMoveL name="pos3"
+                        target="0.5; -0.15; 0.05; 3.1416; 0; 0"
+                        mode="abs" />
+                    <BtSetGripper state="true" speed="1.0" />
+                    <BtArmMoveL name="pos3"
+                        target="0.5; -0.15; 0.15; 3.1416; 0; 0"
+                        mode="abs" />
+                    <BtSetGripper state="false" speed="1.0" />
+                    <BtArmMoveL name="pos3"
+                        target="0.5; 0.15; 0.15; 3.1416; 0; 0"
+                        mode="abs" />
+                    <BtSetGripper state="true" speed="1.0" />
+                    <BtArmMoveL name="pos3"
+                        target="0.5; 0.15; 0.05; 3.1416; 0; 0"
+                        mode="abs" />
+                    <BtSetGripper state="false" speed="1.0" />
+                    <BtArmMoveL name="pos3"
+                        target="0.5; 0.15; 0.15; 3.1416; 0; 0"
+                        mode="abs" />
+                    <BtArmMoveL name="pos3"
+                        target="0.5; 0; 0.15; 3.1416; 0; 0"
+                        mode="abs" />
+                </Sequence>
+            </ForceSuccess>
+            <BtArmMoveJ name="end_pos"
+                joint="0; -1.5; 1.5; 0; 0; 0"
+                mode="abs"
+                speed="0.2"
+                acc="0.2" />
+            <BtArmEnable enable="false" />
+        </Sequence>
+    </BehaviorTree>
+
+    <!-- Description of Node Models (used by Groot) -->
+    <TreeNodesModel>
+        <Action ID="BtArmEnable"
+            editable="true">
+            <input_port name="enable" />
+        </Action>
+        <Action ID="BtArmMoveJ"
+            editable="true">
+            <input_port name="joint" />
+            <input_port name="mode" />
+            <input_port name="speed" />
+            <input_port name="acc" />
+        </Action>
+        <Action ID="BtArmMoveL"
+            editable="true">
+            <input_port name="target" />
+            <input_port name="mode" />
+            <input_port name="speed" />
+            <input_port name="acc" />
+        </Action>
+    </TreeNodesModel>
+
+</root>

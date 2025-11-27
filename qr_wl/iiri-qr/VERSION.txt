@@ -1,0 +1,8 @@
+Project: qr_wl
+Version: ae7c783-dirty
+Architecture: arm
+Build Date: 2025-11-26 21:05:43
+Build Type: Release
+Git Commit: ae7c783934a6a4b8fba41ce7ed241097da3f294f
+Git Branch: main
+Package: iiri-qr-arm-ae7c783-dirty

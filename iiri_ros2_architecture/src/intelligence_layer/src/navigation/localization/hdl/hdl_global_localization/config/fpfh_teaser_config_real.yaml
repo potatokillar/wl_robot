@@ -1,0 +1,13 @@
+fpfh_teaser_node:
+  ros__parameters:
+    # correspondence estimation params
+    cross_check: False
+    tuple_test: False
+    tuple_scale: 0.95
+
+    # transformation estimation params
+    noise_bound: 0.5
+    cbar2: 1.0
+    rotation_max_iterations: 100
+    rotation_gnc_factor: 1.4
+    rotation_cost_threshold: 0.005

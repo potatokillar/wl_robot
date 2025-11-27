@@ -1,0 +1,13 @@
+# 获取设备信息，特指qr_wl的信息，将来需要优化
+# 无请求值
+---
+bool success
+string name  # 机器人名字
+string version_software #软件版本
+string version_hardware
+string version_sdk #支持的sdk版本
+string version_mechanical
+string serial_number #序列号
+string model    # 机器人型号
+string model_dev    #设备型号
+string model_ctr    #控制型号

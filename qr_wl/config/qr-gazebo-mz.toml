@@ -1,0 +1,65 @@
+# 四足机器人的配置文件
+# 第三代连杆参数
+
+# 基类配置文件路径，不含'/'字符
+# 派生类与基类配置文件的简单规则如下
+# 1，派生类修改基类的某个选项，派生类中对应层级位置修改
+# 2，派生类增加配置某配置选项，派生类中直接填写添加
+# 3，派生类删除基类某配置选项，派生类中对应层级位置对该配置写一个空值
+include = "00-base.toml"
+
+devModel = "qr-linkV2-3" # 设备型号不变
+ctrModel = "qr-middleV3" # 四足算法型号
+
+#------------------------------------------------------------
+# 模型测试参数
+#------------------------------------------------------------
+enableParam = true
+printInfo = false
+
+# 模型文件路径
+# format: ./onnx_model/{模型生成日期}/{当日模型序号}/nvidia_result_{模型节点}.onnx
+# kp 80 kd 4.5
+onnxPath.climb = "./onnx_model/mz/normalMode/2024-10-17-16:02:39-2000.onnx"
+onnxPath.normal = "./onnx_model/mz/normalMode/2024-10-17-16:02:39-2000.onnx"
+onnxPath.upright = "./onnx_model/mz/normalMode/2024-10-17-16:02:39-2000.onnx"
+onnxPath.handstand = "./onnx_model/mz/normalMode/2024-10-17-16:02:39-2000.onnx"
+
+kFilter.normal = 0.6 # 滤波系数
+kFilter.climb = 0.6 # 滤波系数
+kFilter.handstand = 0.6
+kFilter.upright = 0.6
+
+kp.nml_clb = 80.0     # 关节kp系数。若数组长度为1，则所有关节使用相同kp；若数组长度为12，则对应关节使用对应系数
+kd.nml_clb = 4.5      # 关节kd系数。若数组长度为1，则所有关节使用相同kp；若数组长度为12，则对应关节使用对应系数
+kp.handstand = 80.0   
+kd.handstand = 4.5    
+kp.upright = 80.0     
+kd.upright = 4.5      
+
+defaultJoints.normal = [
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+]
+defaultJoints.climb = [
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+]
+defaultJoints.handstand = [
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+]
+defaultJoints.upright = [
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+    0.0, 0.9, -1.8,
+]
+aiActionScale = 0.25 # AI动作的缩放比例
+#------------------------------------------------------------

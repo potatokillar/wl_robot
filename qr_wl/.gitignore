@@ -1,0 +1,59 @@
+# 编译生成的目标文件
+*.o
+*.obj
+
+# 编译生成的库文件
+*.a
+*.so
+*.lib
+*.dll
+
+# CMake生成的文件
+*.cmake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.vcxproj*
+*.sln
+
+# 构建目录
+build/
+Build/
+out/
+log/
+
+# IDE文件
+.vscode/
+.vs/
+*.user
+*.suo
+
+# 临时文件
+*.tmp
+*~
+*.swp
+*.swo
+*.make
+*.cpp.o
+*.zip
+
+# 日志文件
+*.log
+
+# 编译生成的可执行文件
+qr
+qr.exe
+
+# 自动生成的版本文件（运行时更新）
+app/version.hpp
+
+# clangd索引缓存
+.cache/
+
+# 其他
+*.bak
+*.orig
+
+# 部署包（太大不适合存储在 Git 中）
+deploy_packages/

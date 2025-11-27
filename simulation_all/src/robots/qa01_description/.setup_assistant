@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: qa01_description
+    relative_path: urdf/qa01_new_description.urdf
+    xacro_args: ""
+  SRDF:
+    relative_path: config/qa01_description.srdf
+  CONFIG:
+    author_name: zhang
+    author_email: zh2362207401@gmail.com
+    generated_timestamp: 1725429557

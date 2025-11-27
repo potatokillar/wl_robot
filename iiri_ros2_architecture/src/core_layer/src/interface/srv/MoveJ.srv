@@ -1,0 +1,10 @@
+# moveJ接口，目前只支持单个目标
+# 目标 6~7个关节点
+float32[7] joint
+string mode  # 运行模式
+float32 speed # 运行速度，0表示不设置
+float32 acc  # 运行加速度，0表示不设置
+---
+# 返回值，0表示成功，其他表示错误码
+int8 result
+

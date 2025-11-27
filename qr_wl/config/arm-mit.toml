@@ -1,0 +1,6 @@
+# 使用mit电机的机械臂
+
+include = "00-base.toml"
+
+devModel = "arm-mit" # 设备配置
+ctrModel = "arm"     # 算法配置

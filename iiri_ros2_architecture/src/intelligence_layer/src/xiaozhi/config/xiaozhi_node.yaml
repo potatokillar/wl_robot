@@ -1,0 +1,6 @@
+/xiaozhi_node:
+  ros__parameters:
+    mode: 0 # 0 - 默认模式(唤醒和休眠状态) 1 - (带关键词)一次指令一次回应模式
+    log_level: 2 # 2 - DEBUG, 3 - INFO
+    # iot指令开机后初始化
+    init_volume: 100  # 初始音量值，范围从0到100

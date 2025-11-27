@@ -1,0 +1,6 @@
+/camera_node: 
+  ros__parameters: 
+    ip: ""
+    user: "admin"
+    pwd: "WL666666"
+    camera_type: "realsense"  #dahua,realsense

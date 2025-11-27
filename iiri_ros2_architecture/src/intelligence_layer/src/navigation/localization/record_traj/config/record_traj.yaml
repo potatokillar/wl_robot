@@ -1,0 +1,8 @@
+record_traj_node:
+    ros__parameters:
+        record_max_distance: 0.13
+        record_min_distance: 0.07
+        record_max_angle: 100.0
+
+        traj_parent_directory: "traj"
+        traj_file_name: "traj.csv"

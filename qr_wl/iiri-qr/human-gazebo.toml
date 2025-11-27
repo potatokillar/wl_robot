@@ -1,0 +1,29 @@
+# 人型机器人仿真配置文件
+
+
+include = "00-base.toml"
+
+devModel = "human"
+ctrModel = "human-gazebo"
+
+#------------------------------------------------------------
+# 模型测试参数
+#------------------------------------------------------------
+enableParam = true
+printInfo = false
+
+# 模型文件路径
+# format: ./onnx_model/{模型生成日期}/{当日模型序号}/nvidia_result_{模型节点}.onnx
+onnxPath.climb = "./onnx_model/gh1/climbMode/2024-10-29-09:47:28-6000.onnx"
+onnxPath.normal = "./onnx_model/gh1/normalMode/2024-10-29-09:47:28-6000.onnx"
+
+kFilter = 0.6 # 滤波系数
+kp = 150.0    # 关节kp系数。若数组长度为1，则所有关节使用相同kp；若数组长度为12，则对应关节使用对应系数
+kd = 5.0      # 关节kd系数。若数组长度为1，则所有关节使用相同kp；若数组长度为12，则对应关节使用对应系数
+
+defaultHip = 0.0   # 默认hip关节角度
+defaultThigh = 0.9 # 默认thigh关节角度
+defaultCalf = -1.8 # 默认calf关节角度
+
+aiActionScale = 0.25 # AI动作的缩放比例
+#------------------------------------------------------------

@@ -1,0 +1,36 @@
+path_tracker_node:
+  ros__parameters:
+    path_tracker_plugins: ["path_tracker/SimplePathTracker"]
+    progress_checker_plugin: "path_tracker/SimpleProgressChecker"
+    goal_checker_plugins: ["path_tracker/SimpleGoalChecker"]
+    
+    # robot_odom_frame_id: "odom"
+    # odom_child_frame_id: "laser_link"
+    default_path_tracker: "path_tracker/SimplePathTracker"
+    default_goal_checker: "path_tracker/SimpleGoalChecker"
+    control_frequency: 20.0
+    global_frame_id: "map"
+    robot_frame_id: "base_link"
+    sensor_frame_id: "laser_link"
+    transform_tolerance: 0.4
+
+    path_tracker/SimplePathTracker:
+      achieve_goal_distance: 0.3
+      track_forward_distance: 0.4
+      fixed_velocity: 0.6
+      fixed_max_velocity: 1.0
+      yaw_vel_fixed: 1.57
+      tolerance_distance: 0.6
+      tolerance_back_distance: 0.4
+      weight_position: 0.72
+      weight_theta: 0.29
+      time_init_ms: 400
+      time_brake_ms: 250
+      brake_vel: -2.0
+
+    path_tracker/SimpleProgressChecker:
+      time_allowance: 15.0
+      move_radius: 0.2
+
+    path_tracker/SimpleGoalChecker:
+      reach_goal_tolerance: 0.4

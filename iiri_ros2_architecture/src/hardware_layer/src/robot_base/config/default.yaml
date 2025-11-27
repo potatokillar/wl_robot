@@ -1,0 +1,8 @@
+/robot_base_node: 
+  ros__parameters: 
+    js: "/dev/input/js0" #手柄
+    server_local_ip: "127.0.0.1"  # 本机服务器
+    server_lan_ip: "192.168.1.55"   #局域网服务器，空表示不使用
+    server_wan_ip: "121.40.120.33"  #广域网服务器，空表示不使用
+    rtsp_ip: "192.168.1.186"        #rtsp 拉流
+    net_name: ["wlP1p1s0", "enP8p1s0", "eno1"] # 只查找这几个网卡的IP

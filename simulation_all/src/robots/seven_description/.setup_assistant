@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: seven
+    relative_path: urdf/seven.urdf
+    xacro_args: ""
+  SRDF:
+    relative_path: config/seven.srdf
+  CONFIG:
+    author_name: zuozhuan
+    author_email: zh23622070401@gmail.com
+    generated_timestamp: 1723617742

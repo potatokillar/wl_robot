@@ -1,0 +1,13 @@
+# 机械臂状态
+float32[7] angle
+Cart cart
+int8 NO_RUN=0
+int8 INIT=1
+int8 NO_READY=2
+int8 READY=3
+int8 RUN=4
+int8 PAUSE=5
+int8 COMPLETE=6
+int8 INTERRUPT=7
+int8 ERROR=8
+int8 state

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot name="iris2">
+    <link name="world" />
+    <link name="base_link">
+        <inertial>
+            <origin xyz="0.00578117548030324 -9.07726421779664E-06 0.0488044917096179" rpy="0 0 0" />
+            <mass value="0.492119299386507" />
+            <inertia ixx="0.00176814893523398" ixy="7.04319167479488E-07" ixz="9.85058163174506E-05" iyy="0.00158278592610557" iyz="-2.99815822093978E-07" izz="0.00188647107428446" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/base_link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/base_link.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="world_fixed" type="fixed">
+        <parent link="world" />
+        <child link="base_link" />
+    </joint>
+    <link name="Link1">
+        <inertial>
+            <origin xyz="6.7745E-05 -0.01356 0.049396" rpy="0 0 0" />
+            <mass value="0.2431" />
+            <inertia ixx="0.00050748" ixy="-2.2669E-07" ixz="-1.3264E-08" iyy="0.00052839" iyz="9.9643E-05" izz="0.00049333" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link1.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.79216 0.81961 0.93333 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link1.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Joint1" type="revolute">
+        <origin xyz="0 0 0.1483" rpy="0 0 3.14159" />
+        <parent link="base_link" />
+        <child link="Link1" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3.14" upper="3.14" effort="50" velocity="5" />
+    </joint>
+    <link name="Link2">
+        <inertial>
+            <origin xyz="5.7852E-06 0.13 0.011814" rpy="0 0 0" />
+            <mass value="3.2851" />
+            <inertia ixx="0.035921" ixy="6.4656E-06" ixz="-2.7421E-07" iyy="0.0027289" iyz="-9.0349E-09" izz="0.038097" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link2.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.75294 0.75294 0.75294 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link2.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Joint2" type="revolute">
+        <origin xyz="9.733E-05 -0.0843 0.0697" rpy="1.5708 0 0.0011546" />
+        <parent link="Link1" />
+        <child link="Link2" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3.14" upper="3.14" effort="50" velocity="5" />
+    </joint>
+    <link name="Link3">
+        <inertial>
+            <origin xyz="0.0001178 0.017877 -0.067244" rpy="0 0 0" />
+            <mass value="1.7366" />
+            <inertia ixx="0.0033737" ixy="-2.0308E-06" ixz="3.0515E-06" iyy="0.0029499" iyz="0.00064644" izz="0.0036533" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link3.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.75294 0.75294 0.75294 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link3.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Joint3" type="revolute">
+        <origin xyz="-5.4424E-05 0.26 -0.0005" rpy="0 0 0" />
+        <parent link="Link2" />
+        <child link="Link3" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-3.14" upper="3.14" effort="50" velocity="5" />
+    </joint>
+    <link name="Link4">
+        <inertial>
+            <origin xyz="-0.00059207 -0.012221 0.12085" rpy="0 0 0" />
+            <mass value="1.8171" />
+            <inertia ixx="0.00942" ixy="-1.8464E-05" ixz="0.00012997" iyy="0.0090966" iyz="0.0020976" izz="0.0028033" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link4.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.75294 0.75294 0.75294 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link4.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Joint4" type="revolute">
+        <origin xyz="0.00017851 0.075 -0.0843" rpy="-1.5708 0 0" />
+        <parent link="Link3" />
+        <child link="Link4" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-3.14" upper="3.14" effort="50" velocity="5" />
+    </joint>
+    <link name="Link5">
+        <inertial>
+            <origin xyz="-0.0027032 0.0019961 0.040319" rpy="0 0 0" />
+            <mass value="1.2801" />
+            <inertia ixx="0.0018672" ixy="5.7393E-06" ixz="2.636E-06" iyy="0.0016485" iyz="-7.3124E-05" izz="0.001837" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link5.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.75294 0.75294 0.75294 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link5.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Joint5" type="revolute">
+        <origin xyz="-0.0054343 -0.084095 0.18431" rpy="1.5706 0 0" />
+        <parent link="Link4" />
+        <child link="Link5" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3.14" upper="3.14" effort="50" velocity="5" />
+    </joint>
+    <link name="Link6">
+        <inertial>
+            <origin xyz="-0.00022328 0.00019961 0.020931" rpy="0 0 0" />
+            <mass value="1.0451" />
+            <inertia ixx="0.00058038" ixy="-6.0864E-07" ixz="4.0145E-06" iyy="0.00058916" iyz="-4.7392E-06" izz="0.00092351" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link6.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.75294 0.75294 0.75294 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://iris_config/meshes/iris2/Link6.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Joint6" type="revolute">
+        <origin xyz="-0.0035152 0.0663 0.052382" rpy="-1.5706 0 0" />
+        <parent link="Link5" />
+        <child link="Link6" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-3.14" upper="3.14" effort="50" velocity="5" />
+    </joint>
+    <transmission name="trans_Joint1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Joint1">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Joint1_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_Joint2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Joint2">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Joint2_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_Joint3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Joint3">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Joint3_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_Joint4">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Joint4">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Joint4_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_Joint5">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Joint5">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Joint5_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_Joint6">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Joint6">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Joint6_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>/</robotNamespace>
+        </plugin>
+    </gazebo>
+</robot>

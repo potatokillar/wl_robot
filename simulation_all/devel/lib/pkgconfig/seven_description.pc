@@ -1,0 +1,8 @@
+prefix=/home/wl/workspace/simulation_all/devel
+
+Name: seven_description
+Description: Description of seven_description
+Version: 0.3.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

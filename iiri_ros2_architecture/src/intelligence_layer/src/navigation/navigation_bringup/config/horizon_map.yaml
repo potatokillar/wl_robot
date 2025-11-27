@@ -1,0 +1,5 @@
+horizon_map_node:
+    ros__parameters:
+        map_file_name: "horizon_map.pcd"
+        map_file_parent_directory: "map"
+        global_map_frame_id: "map"

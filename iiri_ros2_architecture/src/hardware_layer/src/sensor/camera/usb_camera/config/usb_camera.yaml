@@ -1,0 +1,20 @@
+usb_camera_node:
+  ros__parameters:
+    undistort: false
+    device_id: 1
+    frame_width: 640
+    frame_height: 480
+    # 如果是realSense深度相机只支持30帧率
+    fps: 30
+    # 焦距
+    fx: 1.0
+    fy: 1.0
+    # 中心偏移坐标
+    cx: 320.
+    cy: 240.
+    # 畸变系数（径向和切向）
+    k1: 0.
+    k2: 0.
+    p1: 0.
+    p2: 0.
+    k3: 0.

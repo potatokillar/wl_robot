@@ -1,0 +1,9 @@
+<!-- 默认树，不做任务处理-->
+<root BTCPP_format="4">
+    <BehaviorTree ID="defaultTree">
+        <!-- 一次性任务，前一个任务失败则整个都失败-->
+        <Sequence>
+            <AlwaysSuccess />
+        </Sequence>
+    </BehaviorTree>
+</root>

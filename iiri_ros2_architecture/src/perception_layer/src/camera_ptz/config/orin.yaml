@@ -1,0 +1,7 @@
+# 在orin上的配置
+/camera_node: 
+  ros__parameters: 
+    ip: "192.168.10.153"
+    user: "admin"
+    pwd: "WL666666"
+    camera_type: "realsense"  #dahua,realsense

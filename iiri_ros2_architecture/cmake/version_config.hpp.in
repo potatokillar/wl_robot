@@ -1,0 +1,41 @@
+#pragma once
+
+#include <rclcpp/rclcpp.hpp>
+
+// ROS2版本信息，在CMake配置时自动生成
+#define GIT_BRANCH "@GIT_BRANCH@"
+#define GIT_COMMIT "@GIT_COMMIT@"
+#define GIT_COMMIT_SHORT "@GIT_COMMIT_SHORT@"
+#define GIT_TAG "@GIT_TAG@"
+#define SOFTWARE_VERSION "@SOFTWARE_VERSION@"
+#define VERSION_MODE "@VERSION_MODE@"
+#define BUILD_TIMESTAMP "@BUILD_TIMESTAMP@"
+#define PACKAGE_NAME "@PACKAGE_NAME@"
+#define LAYER_NAME "@LAYER_NAME@"
+
+namespace ROS2VersionInfo {
+    constexpr const char* branch = GIT_BRANCH;
+    constexpr const char* commit = GIT_COMMIT;
+    constexpr const char* commitShort = GIT_COMMIT_SHORT;
+    constexpr const char* tag = GIT_TAG;
+    constexpr const char* softwareVersion = SOFTWARE_VERSION;
+    constexpr const char* versionMode = VERSION_MODE;
+    constexpr const char* buildTimestamp = BUILD_TIMESTAMP;
+    constexpr const char* packageName = PACKAGE_NAME;
+    constexpr const char* layerName = LAYER_NAME;
+}
+
+// ========== 版本信息输出宏 ==========
+#define REGISTER_ROS2_PACKAGE_VERSION(pkg_name) \
+    do { \
+        RCLCPP_INFO(this->get_logger(), "========================================"); \
+        RCLCPP_INFO(this->get_logger(), "Package:       %s", pkg_name); \
+        RCLCPP_INFO(this->get_logger(), "Layer:         %s", ROS2VersionInfo::layerName); \
+        RCLCPP_INFO(this->get_logger(), "Version:       %s", ROS2VersionInfo::softwareVersion); \
+        RCLCPP_INFO(this->get_logger(), "Mode:          %s", ROS2VersionInfo::versionMode); \
+        RCLCPP_INFO(this->get_logger(), "Git Branch:    %s", ROS2VersionInfo::branch); \
+        RCLCPP_INFO(this->get_logger(), "Git Commit:    %s", ROS2VersionInfo::commitShort); \
+        RCLCPP_INFO(this->get_logger(), "Git Tag:       %s", ROS2VersionInfo::tag); \
+        RCLCPP_INFO(this->get_logger(), "Build Time:    %s", ROS2VersionInfo::buildTimestamp); \
+        RCLCPP_INFO(this->get_logger(), "========================================"); \
+    } while(0)

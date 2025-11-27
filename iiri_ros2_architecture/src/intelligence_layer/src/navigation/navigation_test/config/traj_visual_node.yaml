@@ -1,0 +1,4 @@
+traj_visual_node:
+  ros__parameters:
+    traj_file_name: "traj-first.csv"
+    pcl_file_name: "horizon_map-2025-06-16-19:10:04.pcd"

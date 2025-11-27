@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>智研院四足机器人-感知端</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #007BFF;
+            margin-top: 20px;
+        }
+
+        .info {
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .info p {
+            margin: 5px 0;
+        }
+
+        .form-group {
+            margin: 20px 0;
+        }
+
+        label {
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        input[type="text"] {
+            padding: 5px;
+            font-size: 1em;
+            width: 200px;
+        }
+
+        /* 单独设置描述输入框的宽度 */
+        #description-input {
+            width: 400px;
+        }
+
+        button {
+            padding: 5px 10px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ccc;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>智研院四足机器人-感知端</h1>
+    <div class="info">
+        <p><strong>名称:</strong> <span id="name">四足机器人 v1.0</span></p>
+        <p><strong>描述:</strong> <span id="description">高性能四足机器人，适用于复杂地形。</span></p>
+        <p><strong>软件版本:</strong> <span id="software-version">加载中...</span></p>
+        <p><strong>硬件版本:</strong> <span id="hardware-version">加载中...</span></p>
+        <p><strong>机械版本:</strong> <span id="mechanical-version">加载中...</span></p>
+        <p><strong>序列号:</strong> <span id="serial-number">SN123456789</span></p>
+        <p><strong>UUID:</strong> <span id="uuid">加载中...</span></p>
+    </div>
+
+    <!-- 分隔符 -->
+    <hr>
+
+    <!-- 参数设置标题 -->
+    <h2>参数设置</h2>
+
+    <!-- 名称修改 -->
+    <div class="form-group">
+        <label for="name-input">名称:</label>
+        <input type="text" id="name-input" value="四足机器人 v1.0">
+        <button type="button" onclick="updateName()">确定</button>
+    </div>
+
+    <!-- 描述修改 -->
+    <div class="form-group">
+        <label for="description-input">描述:</label>
+        <input type="text" id="description-input" value="高性能四足机器人，适用于复杂地形。">
+        <button type="button" onclick="updateDescription()">确定</button>
+    </div>
+
+    <!-- 序列号修改 -->
+    <div class="form-group">
+        <label for="serial-number-input">序列号:</label>
+        <input type="text" id="serial-number-input" value="SN123456789">
+        <button type="button" onclick="updateSerialNumber()">确定</button>
+    </div>
+
+    <!-- UUID重置 -->
+    <div class="form-group">
+        <label>UUID重置:</label>
+        <button type="button" onclick="resetUUID()">重置</button>
+    </div>
+
+    <script>
+        // 页面加载时获取版本信息
+        window.onload = function () {
+            fetch('/get-versions')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('software-version').textContent = data.softwareVersion;
+                    document.getElementById('hardware-version').textContent = data.hardwareVersion;
+                    document.getElementById('mechanical-version').textContent = data.mechanicalVersion;
+                    document.getElementById('serial-number').textContent = data.serialNumber;
+                    document.getElementById('name').textContent = data.robotName;
+                    document.getElementById('description').textContent = data.robotDescription;
+                    document.getElementById('uuid').textContent = data.uuid;
+                })
+                .catch(error => {
+                    console.error('获取版本信息失败:', error);
+                });
+        };
+
+        // 更新名称
+        function updateName() {
+            const newName = document.getElementById('name-input').value;
+            fetch('/update-name', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: newName }),
+            })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('name').textContent = newName;
+                    alert('名称更新成功: ' + data);
+                })
+                .catch(error => {
+                    console.error('名称更新失败:', error);
+                });
+        }
+
+        // 更新描述
+        function updateDescription() {
+            const newDescription = document.getElementById('description-input').value;
+            fetch('/update-description', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ description: newDescription }),
+            })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('description').textContent = newDescription;
+                    alert('描述更新成功: ' + data);
+                })
+                .catch(error => {
+                    console.error('描述更新失败:', error);
+                });
+        }
+
+        // 更新序列号
+        function updateSerialNumber() {
+            const newSerialNumber = document.getElementById('serial-number-input').value;
+            fetch('/update-serial-number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ serialNumber: newSerialNumber }),
+            })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('serial-number').textContent = newSerialNumber;
+                    alert('序列号更新成功: ' + data);
+                })
+                .catch(error => {
+                    console.error('序列号更新失败:', error);
+                });
+        }
+
+        // 重置UUID
+        function resetUUID() {
+            const confirmReset = confirm('确定要重置UUID吗？此操作不可逆！');
+            if (confirmReset) {
+                fetch('/reset-uuid', {
+                    method: 'POST',
+                })
+                    .then(response => response.text())
+                    .then(data => {
+                        document.getElementById('uuid').textContent = data;
+                        alert('UUID重置成功: ' + data);
+                    })
+                    .catch(error => {
+                        console.error('重置UUID失败:', error);
+                    });
+            }
+        }
+    </script>
+</body>
+
+</html>

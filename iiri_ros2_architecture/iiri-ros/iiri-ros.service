@@ -1,0 +1,45 @@
+# 请放入/lib/systemd/system中，必须注意先检查下配置文件
+# 位于 /etc/systemd/system/iiri-ros.service
+
+[Unit]
+Description=wl_ros autorun service
+# 使用 network-online.target 确保网络完全就绪
+After=network-online.target bluetooth.service iiri-qr.service
+Requires=network-online.target
+
+[Service]
+# ros2 launch 是前台持续运行的进程，应该使用 simple 类型
+Type=simple
+Restart=on-failure
+RestartSec=10
+
+# 超时配置：防止停止脚本执行超时被 SIGTERM 中断
+TimeoutStopSec=120
+TimeoutStartSec=120
+
+# 当不指定 User 时，默认以 root 权限运行
+User=wl
+Group=wl
+
+WorkingDirectory=/home/wl/autorun/iiri-ros
+
+# ROS2 日志配置 - 移除 RCUTILS_LOGGING_USE_STDOUT，让 rcl_logging_spdlog 写入单独的节点日志文件
+Environment="RCUTILS_LOGGING_BUFFERED_STREAM=0"
+Environment="RCUTILS_COLORIZED_OUTPUT=0"
+
+# 标准输出/错误输出到 journal 和控制台
+StandardOutput=journal+console
+StandardError=journal+console
+
+# 启动前预创建 OTA 更新状态文件（+ 表示以 root 权限运行）
+ExecStartPre=+/usr/local/bin/init_update_status.sh
+# 稍作等待，给其他服务一点时间
+ExecStartPre=/bin/sleep 5
+ExecStart=/home/wl/autorun/iiri-ros/start_ros2_iiri_start.sh
+ExecStop=/home/wl/autorun/iiri-ros/stop_ros2_iiri_advanced.sh
+
+# 修复 ExecReload 的语法问题
+ExecReload=/bin/sh -c '/home/wl/autorun/iiri-ros/stop_ros2_iiri_advanced.sh && /home/wl/autorun/iiri-ros/start_ros2_iiri_start.sh'
+
+[Install]
+WantedBy=multi-user.target

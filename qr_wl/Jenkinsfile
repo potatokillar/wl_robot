@@ -1,0 +1,283 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(
+            numToKeepStr: '10',        // 保留最近10次构建
+            artifactNumToKeepStr: '5'  // 保留最近5次构建的产物
+        ))
+    }
+
+    parameters {
+        choice(
+            name: 'ARCHITECTURE',
+            choices: ['x86', 'arm'],
+            description: '''目标架构：
+            - x86: x86_64 架构编译
+            - arm: ARM64 架构交叉编译（使用 Docker 镜像中的交叉编译工具链）'''
+        )
+    }
+
+    triggers {
+        // 每24小时自动构建一次（不管是否有代码变更）
+        cron('H 0 * * *')
+    }
+
+    environment {
+        GIT_REPO = 'http://192.168.1.55/ontology/qr_wl.git'
+        GIT_BRANCH = 'main'
+        GIT_CREDENTIALS = 'http://root:westlake@192.168.1.55'
+        DOCKER_IMAGE = '192.168.1.93/iiri/build_x86_arm_ros1:latest'
+        CI = 'true'  // 标记为 CI 环境,禁用 docker -it 参数
+        ORIN_HOST = '192.168.1.61'
+        ORIN_USER = 'wl'
+        ORIN_PASS = '123456'
+    }
+
+    stages {
+        stage('清理工作空间') {
+            steps {
+                echo '=== 清理旧的工作空间 ==='
+                deleteDir()
+            }
+        }
+
+        stage('拉取代码') {
+            steps {
+                echo '=== 拉取主仓库代码 ==='
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${GIT_BRANCH}"]],
+                    userRemoteConfigs: [[
+                        url: "${GIT_REPO}",
+                        credentialsId: 'git-cred'
+                    ]]
+                ])
+
+                echo '=== 配置 Git 凭据 ==='
+                sh '''
+                    git config --global credential.helper store
+                    echo "${GIT_CREDENTIALS}" > ~/.git-credentials
+                    git config --global user.name "Jenkins CI"
+                    git config --global user.email "jenkins@iiri.local"
+                '''
+            }
+        }
+
+        stage('检查 Docker') {
+            steps {
+                echo '=== 检查 Docker 可用性 ==='
+                sh '''
+                    set +e
+
+                    echo "诊断信息:"
+                    echo "  PATH: $PATH"
+                    echo "  检查 docker 命令:"
+                    command -v docker
+                    DOCKER_CHECK=$?
+
+                    set -e
+
+                    # 判断 docker 是否可用
+                    if [ $DOCKER_CHECK -ne 0 ]; then
+                        echo ""
+                        echo "ERROR: Docker 未安装或不在 PATH 中"
+                        echo ""
+                        echo "请确保:"
+                        echo "  1. Docker 已安装"
+                        echo "  2. Docker 在 PATH 中"
+                        echo "  3. Docker socket 已挂载"
+                        exit 1
+                    fi
+
+                    echo ""
+                    echo "=== Docker 版本 ==="
+                    docker --version
+
+                    echo ""
+                    echo "=== 测试 Docker 运行 ==="
+                    if docker ps >/dev/null 2>&1; then
+                        echo "✓ Docker 访问正常"
+                        docker ps --format "table {{.Names}}\t{{.Status}}" | head -5
+                    else
+                        echo "ERROR: 无法访问 Docker socket"
+                        echo "请检查:"
+                        echo "  1. Docker socket 是否挂载: /var/run/docker.sock"
+                        echo "  2. Socket 权限: chmod 666 /var/run/docker.sock"
+                        exit 1
+                    fi
+                '''
+            }
+        }
+
+        stage('拉取 Docker 镜像') {
+            steps {
+                echo "=== 拉取最新 Docker 镜像 ==="
+                echo "目标镜像: ${DOCKER_IMAGE}"
+
+                sh """
+                    echo "正在拉取镜像..."
+                    docker pull ${DOCKER_IMAGE}
+
+                    echo ""
+                    echo "=== 镜像信息 ==="
+                    docker images ${DOCKER_IMAGE} --format "table {{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedAt}}"
+
+                    echo ""
+                    echo "✓ 镜像拉取完成"
+                """
+            }
+        }
+
+        stage('编译') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    // 所有架构都在 Jenkins 上用 Docker 交叉编译
+                    if (params.ARCHITECTURE == 'arm') {
+                        echo "🔨 ARM 交叉编译模式（Jenkins 上使用 Docker 镜像交叉编译）"
+                    } else {
+                        echo "💻 x86 本地编译"
+                    }
+
+                        // 直接在 Jenkins 中运行 Docker 编译，避免嵌套 Docker 路径问题
+                        sh """
+                            # 检测宿主机路径映射
+                            # Jenkins 运行在 Docker 中，/var/jenkins_home 挂载到宿主机 /home/wl/jenkins_data
+                            WORKSPACE_PATH="\$(pwd)"
+
+                            # 从 /proc/1/mountinfo 获取宿主机挂载点
+                            if [ -f /proc/1/mountinfo ]; then
+                                JENKINS_HOME_HOST=\$(grep "/var/jenkins_home" /proc/1/mountinfo | head -1 | awk '{print \$4}')
+                                # 将 Jenkins 容器内路径转换为宿主机路径
+                                # /var/jenkins_home/workspace/... -> /home/wl/jenkins_data/workspace/...
+                                HOST_WORKSPACE=\$(echo "\${WORKSPACE_PATH}" | sed "s|/var/jenkins_home|\${JENKINS_HOME_HOST}|")
+                            else
+                                HOST_WORKSPACE="\${WORKSPACE_PATH}"
+                            fi
+
+                            echo "=== 路径信息 ==="
+                            echo "Jenkins 工作目录: \${WORKSPACE_PATH}"
+                            echo "Jenkins Home 宿主机路径: \${JENKINS_HOME_HOST}"
+                            echo "工作空间宿主机路径: \${HOST_WORKSPACE}"
+
+                            # 检测 GPU 支持
+                            GPU_FLAG=""
+                            if nvidia-smi > /dev/null 2>&1; then
+                                GPU_FLAG="--gpus=all"
+                                echo "✓ 检测到 NVIDIA GPU，启用 GPU 支持"
+                            else
+                                echo "ℹ 未检测到 NVIDIA GPU，跳过 GPU 支持"
+                            fi
+
+                            # 获取当前用户的 UID/GID（Jenkins 容器内的实际用户）
+                            CURRENT_UID=\$(id -u)
+                            CURRENT_GID=\$(id -g)
+                            CURRENT_USER=\$(whoami)
+
+                            echo "当前用户: \${CURRENT_USER} (UID:\${CURRENT_UID}, GID:\${CURRENT_GID})"
+
+                            # 使用宿主机路径运行 Docker 编译
+                            docker run \
+                                -v "\${HOST_WORKSPACE}:/workspace" \
+                                -w "/workspace" \
+                                -v /dev:/dev \
+                                -e USER_NAME=\${CURRENT_USER} \
+                                -e USER_UID=\${CURRENT_UID} \
+                                -e USER_GID=\${CURRENT_GID} \
+                                -e USER_HOME=/home/\${CURRENT_USER} \
+                                -i --rm --network=host --privileged \${GPU_FLAG} \
+                                ${env.DOCKER_IMAGE} \
+                                bash -c 'source ~/.bashrc && ./script/build.sh ${params.ARCHITECTURE}'
+                        """
+                }
+            }
+        }
+
+        stage('打包部署包') {
+            steps {
+                echo "=== 打包 qr_wl 部署包 (${params.ARCHITECTURE}) ==="
+                sh """
+                    # 确保打包脚本可执行
+                    chmod +x deploy_package_qr.sh
+
+                    # 执行打包（跳过构建，使用已编译的二进制）
+                    ./deploy_package_qr.sh ${params.ARCHITECTURE} deploy_packages --skip-build
+
+                    # 显示打包结果
+                    echo ""
+                    echo "=== 打包完成 ==="
+                    ls -lh deploy_packages/*.tar.gz
+                    ls -lh deploy_packages/*.sha256 2>/dev/null || echo "(未生成校验文件)"
+
+                    # 显示部署包内容
+                    echo ""
+                    echo "=== 部署包内容预览 ==="
+                    tar -tzf deploy_packages/*.tar.gz | head -20
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '=== 构建结束 ==='
+        }
+
+        success {
+            echo '=== 编译成功! ==='
+
+            // 归档部署包到Jenkins供下载（主要产物）
+            echo '=== 归档部署包 ==='
+            archiveArtifacts artifacts: "deploy_packages/*.tar.gz",
+                             fingerprint: true,
+                             allowEmptyArchive: false
+
+            // 归档 SHA256 校验文件（如果存在）
+            archiveArtifacts artifacts: "deploy_packages/*.sha256",
+                             fingerprint: false,
+                             allowEmptyArchive: true
+
+            // 归档版本信息
+            archiveArtifacts artifacts: "deploy_packages/*/VERSION.txt",
+                             fingerprint: false,
+                             allowEmptyArchive: true
+
+            // 归档编译日志（次要产物）
+            echo '=== 归档编译日志 ==='
+            archiveArtifacts artifacts: "build/**/log/**/*.log",
+                             fingerprint: false,
+                             allowEmptyArchive: true
+
+            echo ''
+            echo '=========================================='
+            echo '🎉 部署包已归档！'
+            echo '=========================================='
+            echo ''
+            echo '📦 从 Jenkins UI 下载部署包后，部署到树莓派：'
+            echo ''
+            echo '1️⃣  下载部署包到本地'
+            echo '   wget http://admin:westlake@192.168.1.93:8080/job/qr-wl-build-ci/lastSuccessfulBuild/artifact/deploy_packages/*.tar.gz'
+            echo ''
+            echo '2️⃣  上传到树莓派'
+            echo '   scp iiri-qr-*.tar.gz wl@192.168.1.54:/home/wl/autorun/'
+            echo ''
+            echo '3️⃣  解压并部署'
+            echo '   ssh wl@192.168.1.54 "cd /home/wl/autorun && tar -xzf iiri-qr-*.tar.gz && cd iiri-qr-* && ./install.sh"'
+            echo ''
+            echo '=========================================='
+        }
+
+        failure {
+            echo '=== 编译失败! ==='
+
+            // 失败时归档日志用于调试
+            echo '=== 归档失败日志 ==='
+            archiveArtifacts artifacts: "build/**/log/**/*.log",
+                             fingerprint: false,
+                             allowEmptyArchive: true
+        }
+    }
+}

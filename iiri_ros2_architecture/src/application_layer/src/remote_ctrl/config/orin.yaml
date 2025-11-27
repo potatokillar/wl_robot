@@ -1,0 +1,3 @@
+/remote_ctrl_node: 
+  ros__parameters: 
+    net_name: ["wlP1p1s0", "enP8p1s0"]  # 只查找这几个网卡的IP

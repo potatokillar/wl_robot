@@ -1,0 +1,12 @@
+<root BTCPP_format="4">
+    <BehaviorTree ID="MainTree">
+        <Repeat num_cycles="-1">
+            <Fallback>
+                <BtRemoteCtrl />
+                <BtSmartFollow />
+                <BtSpeechRecognition />
+                <AlwaysSuccess />
+            </Fallback>
+        </Repeat>
+    </BehaviorTree>
+</root>

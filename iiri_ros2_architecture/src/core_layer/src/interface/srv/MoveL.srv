@@ -1,0 +1,12 @@
+# MoveL
+# 目标
+geometry_msgs/Point tran
+geometry_msgs/Point rpy
+string mode  # 运行模式
+float32 speed # 运行速度，0表示不设置
+float32 acc  # 运行加速度，0表示不设置
+
+---
+# 返回
+int8 result
+

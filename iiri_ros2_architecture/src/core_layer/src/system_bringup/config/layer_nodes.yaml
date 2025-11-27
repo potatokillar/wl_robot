@@ -1,0 +1,121 @@
+# Layer Nodes Configuration
+# 定义每个层级包含的节点及其默认配置
+
+# 硬件层节点
+hardware_layer:
+  motion_control:
+    package: motion_control
+    executable: motion_control_node
+    name: motion_control
+    default_params:
+      control_frequency: 50.0
+      max_linear_velocity: 1.0
+      max_angular_velocity: 2.0
+
+  robot_base:
+    package: robot_base
+    executable: robot_base_node
+    name: robot_base
+    default_params:
+      publish_rate: 50.0
+      wheel_radius: 0.05
+      wheel_separation: 0.3
+
+# 感知层节点
+perception_layer:
+  camera_ptz:
+    package: camera_ptz
+    executable: camera_ptz_node
+    name: camera_ptz
+    default_params:
+      camera_fps: 30
+      image_width: 640
+      image_height: 480
+
+  speaker:
+    package: speaker
+    executable: speaker_node
+    name: speaker
+    default_params:
+      volume: 80
+      sample_rate: 16000
+
+  tts:
+    package: tts
+    executable: tts_node
+    name: tts
+    default_params:
+      voice_type: "female"
+      speed: 1.0
+
+  speech_recognition:
+    package: speech_recognition
+    executable: speech_recognition_node
+    name: speech_recognition
+    default_params:
+      language: "zh-CN"
+      sensitivity: 0.5
+
+# 智能层节点
+intelligence_layer:
+  bt_manager:
+    package: bt_manager
+    executable: bt_manager_node
+    name: bt_manager
+    default_params:
+      tick_frequency: 10.0
+      bt_tree_path: ""
+
+  navigation:
+    package: navigation
+    executable: navigation_node
+    name: navigation
+    default_params:
+      controller_frequency: 20.0
+      planner_frequency: 1.0
+      costmap_update_frequency: 5.0
+
+  path_tracker:
+    package: path_tracker
+    executable: path_tracker_node
+    name: path_tracker
+    default_params:
+      lookahead_distance: 0.5
+      min_lookahead: 0.3
+      max_lookahead: 1.0
+      use_ceres: false
+
+  smart_follow:
+    package: smart_follow
+    executable: smart_follow_node
+    name: smart_follow
+    default_params:
+      follow_distance: 1.0
+      max_track_distance: 3.0
+      lost_timeout: 3.0
+
+# 应用层节点
+application_layer:
+  dev_server:
+    package: dev_server
+    executable: dev_server_node
+    name: dev_server
+    default_params:
+      port: 8080
+      enable_cors: true
+
+  remote_ctrl:
+    package: remote_ctrl
+    executable: remote_ctrl_node
+    name: remote_ctrl
+    default_params:
+      port: 9090
+      timeout: 5.0
+
+  key_control:
+    package: key_control
+    executable: key_control_node
+    name: key_control
+    default_params:
+      linear_step: 0.1
+      angular_step: 0.2

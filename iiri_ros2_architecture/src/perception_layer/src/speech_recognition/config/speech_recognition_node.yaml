@@ -1,0 +1,12 @@
+/speech_recognition_node:
+  ros__parameters:
+    log_level: 2 # 2 - DEBUG, 3 - INFO
+    play_device_name: "UACDemoV1.0"
+    record_device_name: "USB Audio Device"
+    x86_play_device_name: "PCH"
+    x86_record_device_name: "UACDemoV10"
+    ak_id: "LTAI5tShBPoYFvdopvE26ykN"
+    ak_secret: "z05tBEaSft339YEAl8wT4i6udrbkBh"
+    appkey: "obZvcx6dcs3WPsL4"
+    enable_write_pcm: 0  # 0 - false, 1 - true
+    # record_device_name: "Jabra SPEAK 510 USB"  # 会议室原型麦克风

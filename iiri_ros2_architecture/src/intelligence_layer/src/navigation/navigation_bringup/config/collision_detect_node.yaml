@@ -1,0 +1,4 @@
+collision_detect_node:
+  ros__parameters:
+    dist_thresh: 0.22
+    pitch_thresh: 7.0

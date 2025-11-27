@@ -1,0 +1,77 @@
+# Publish joint_states
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 1000
+
+arm_position_controller:
+  type: position_controllers/JointTrajectoryController
+  #type: position_controllers/JointPositionController
+  joints:
+    - Joint1
+    - Joint2
+    - Joint3
+    - Joint4
+    - Joint5
+    - Joint6
+  gains:
+    Joint1:
+      p: 500
+      d: 1
+      i: 1
+      i_clamp: 1
+    Joint2:
+      p: 500
+      d: 1
+      i: 1
+      i_clamp: 1
+    Joint3:
+      p: 500
+      d: 1
+      i: 1
+      i_clamp: 1
+    Joint4:
+      p: 500
+      d: 1
+      i: 1
+      i_clamp: 1
+    Joint5:
+      p: 500
+      d: 1
+      i: 1
+      i_clamp: 1
+    Joint6:
+      p: 500
+      d: 1
+      i: 1
+      i_clamp: 1
+
+# joint1_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: Joint1
+#   pid: {p: 100, i: 1, d: 1}
+
+# joint2_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: Joint2
+#   pid: {p: 100, i: 1, d: 1}
+
+# joint3_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: Joint3
+#   pid: {p: 100, i: 1, d: 1}
+
+# joint4_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: Joint4
+#   pid: {p: 100, i: 1, d: 1}
+
+# joint5_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: Joint5
+#   pid: {p: 100, i: 1, d: 1}
+
+# joint6_position_controller:
+#   type: position_controllers/JointPositionController
+#   joint: Joint6
+#   pid: {p: 100, i: 1, d: 1}
+

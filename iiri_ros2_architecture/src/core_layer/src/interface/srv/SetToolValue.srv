@@ -1,0 +1,4 @@
+string name
+float32[6] pose
+---
+int8 result

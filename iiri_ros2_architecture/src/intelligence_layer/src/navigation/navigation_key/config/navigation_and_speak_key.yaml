@@ -1,0 +1,15 @@
+navigation_and_speak_key_node:
+  ros__parameters:
+    trajectories: [
+      "traj-first.csv",
+      "traj-second.csv",
+      "traj-third.csv",
+      "traj-forth.csv"
+    ]
+    audios: [
+      'openning_speech',
+      'show_robot_area',
+      'component_display_area',
+      'production_area',
+      'meeting_room'
+    ]

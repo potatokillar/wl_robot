@@ -1,0 +1,7 @@
+# 四足机器人的配置文件
+# 第三代中型
+
+include = "qr-gazebo-mz.toml"
+
+devModel = "qr-middleV3" # 设备型号
+ctrModel = "qr-middleV3" # 四足算法型号

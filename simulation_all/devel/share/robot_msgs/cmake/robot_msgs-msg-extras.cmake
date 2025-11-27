@@ -1,0 +1,2 @@
+set(robot_msgs_MESSAGE_FILES "/home/wl/workspace/simulation_all/src/robot_msgs/msg/MotorCommand.msg;/home/wl/workspace/simulation_all/src/robot_msgs/msg/MotorState.msg;/home/wl/workspace/simulation_all/src/robot_msgs/msg/RobotCommand.msg;/home/wl/workspace/simulation_all/src/robot_msgs/msg/RobotState.msg;/home/wl/workspace/simulation_all/src/robot_msgs/msg/IMU.msg")
+set(robot_msgs_SERVICE_FILES "")

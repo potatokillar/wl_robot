@@ -1,0 +1,7 @@
+# 四足机器人的配置文件
+# 第三代连杆参数
+
+include = "qr-gazebo-sz.toml"
+
+devModel = "qr-linkV2-3" # 设备型号
+ctrModel = "qr-linkV2-3" # 四足算法型号

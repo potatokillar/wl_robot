@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>system_bringup</name>
+  <version>1.0.0</version>
+  <description>IIRI system-level bringup package supporting layered and platform-specific launches</description>
+  <maintainer email="wl@westlake.edu.cn">WL Team</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- Core Layer Dependencies -->
+  <depend>rclcpp</depend>
+  <depend>rclpy</depend>
+  <depend>interface</depend>
+
+  <!-- Hardware Layer Dependencies -->
+  <depend>motion_control</depend>
+  <depend>robot_base</depend>
+
+  <!-- Perception Layer Dependencies -->
+  <depend>camera_ptz</depend>
+  <depend>speaker</depend>
+  <depend>speech_recognition</depend>
+  <depend>tts</depend>
+
+  <!-- Intelligence Layer Dependencies -->
+  <depend>navigation</depend>
+  <depend>bt_manager</depend>
+  <depend>smart_follow</depend>
+  <depend>path_tracker</depend>
+
+  <!-- Application Layer Dependencies (optional) -->
+  <depend>dev_server</depend>
+  <depend>key_control</depend>
+  <depend>remote_ctrl</depend>
+
+  <!-- Launch and Testing -->
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

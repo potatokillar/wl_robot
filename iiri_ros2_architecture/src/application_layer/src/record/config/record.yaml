@@ -1,0 +1,5 @@
+/record_node:
+  ros__parameters:
+    arm_record_device_name: "UACDemoV1.0"
+    x86_record_device_name: "UACDemoV1.0"
+    enable_write_pcm: 0  # 0 - false, 1 - true

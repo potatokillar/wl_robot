@@ -1,0 +1,4 @@
+geometry_msgs/Pose goal_pose
+---
+#result definition
+bool success

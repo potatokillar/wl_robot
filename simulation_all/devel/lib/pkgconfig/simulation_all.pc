@@ -1,0 +1,8 @@
+prefix=/home/wl/workspace/simulation_all/devel
+
+Name: simulation_all
+Description: Description of simulation_all
+Version: 2.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: robot_joint_controller rospy

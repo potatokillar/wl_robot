@@ -1,0 +1,34 @@
+cmake_minimum_required(VERSION 3.5)
+
+set(MODULE_NAME ctrl-arm-tools)
+message(STATUS "moduleName:${MODULE_NAME}")
+
+# 设置本库需要编译的源码文件
+set(LIB_SRC
+    armMathTools.cpp
+    )
+
+# 设置头文件路径，其他包含本库的模块也可使用该头文件路径
+set(LIB_PUB_INC
+    ./
+    ../include
+)
+
+# 设置头文件路径，仅本库使用，其他包含本库的模块不得使用该头文件路径
+set(LIB_PRV_INC
+    ../pub
+    )
+
+# 模块需要的链接库
+set(MOD_LIB
+    baseline
+    ctrl-arm-config
+)
+
+# 编译成静态库
+add_library(${MODULE_NAME} STATIC ${LIB_SRC})
+
+# 添加相关选项到target
+target_include_directories(${MODULE_NAME} PUBLIC ${LIB_PUB_INC})
+target_include_directories(${MODULE_NAME} PRIVATE ${LIB_PRV_INC})
+target_link_libraries(${MODULE_NAME} ${MOD_LIB})  

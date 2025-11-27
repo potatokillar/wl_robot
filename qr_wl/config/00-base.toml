@@ -1,0 +1,70 @@
+# 四足机器人的配置文件
+
+# 基类配置文件路径，不含'/'字符
+# 派生类与基类配置文件的简单规则如下
+# 1，派生类修改基类的某个选项，派生类中对应层级位置修改
+# 2，派生类增加配置某配置选项，派生类中直接填写添加
+# 3，派生类删除基类某配置选项，派生类中对应层级位置对该配置写一个空值
+# 本文件的依赖关系和实际的依赖关系并不相同
+# 本文件一般都是只从base.toml派生。
+# 基本配置文件
+
+# ctrModel一栏为空时，表示不启用该功能
+# 因此此时会启用设备，但是不会启用对应控制器
+devModel = "" # 设备类型
+ctrModel = "" # 控制类型
+
+# 是否需要将打印信息写入日志
+saveLog = true
+
+# 是否启用手柄
+useGamepad = true
+
+# 算法自动启动配置
+autoStartAlgorithm = true  # 启动时自动运行算法（适用于四足机器人）
+autoStartDelay = 2000      # 自动启动延时（毫秒），等待系统初始化完成
+
+# 打印日志级别，0~6，0表示全打开，6表示全关闭。具体如下
+# 0:>=trace, all
+# 1:>=debug
+# 2:>=info
+# 3:>=warn
+# 4:>=error
+# 5:>=critical
+# 6:none
+logLevel = 2
+
+# SDK# 子日志级别，可以单独控制单模块的日志级别，优先级高于上面的logLevel
+# 若注释，则表示复用logLevel的值
+subLogLevel.sensor = 2  # 传感器
+subLogLevel.sdk = 2     # SDK
+subLogLevel.arm = 1     # 机械臂
+subLogLevel.qr = 2      # 四足
+subLogLevel.robot = 2   # 其他
+subLogLevel.human = 1   # 人型
+subLogLevel.gripper = 2 # 夹爪
+
+# 语言，界面显示交互语言
+language = "zh-cn"
+
+#------------------------------------------------------------
+# 模型测试参数
+#------------------------------------------------------------
+enableParam = true
+printInfo = false
+
+# 模型文件路径
+# format: ./onnx_model/{模型生成日期}/{当日模型序号}/nvidia_result_{模型节点}.onnx
+onnxPath.climb = "./onnx_model/climb.onnx"
+onnxPath.normal = "./onnx_model/norml.onnx"
+
+kFilter = 0.6 # 滤波系数
+kp = 25.0     # 关节kp系数。若数组长度为1，则所有关节使用相同kp；若数组长度为12，则对应关节使用对应系数
+kd = 0.8      # 关节kd系数。若数组长度为1，则所有关节使用相同kp；若数组长度为12，则对应关节使用对应系数
+
+defaultHip = 0.0   # 默认hip关节角度
+defaultThigh = 0.9 # 默认thigh关节角度
+defaultCalf = -1.8 # 默认calf关节角度
+
+aiActionScale = 0.25 # AI动作的缩放比例
+#------------------------------------------------------------

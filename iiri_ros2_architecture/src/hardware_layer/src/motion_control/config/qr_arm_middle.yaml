@@ -1,0 +1,7 @@
+# 中型四足，机械臂，联合控制
+/arm_node: 
+  ros__parameters: 
+    ip: "192.168.10.152"
+/qr_node: 
+  ros__parameters:
+    ip: "192.168.10.151"

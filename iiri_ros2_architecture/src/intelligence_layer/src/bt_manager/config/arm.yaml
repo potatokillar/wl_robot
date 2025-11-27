@@ -1,0 +1,3 @@
+/bt_default_tree: 
+  ros__parameters: 
+    default_tree: "default" # 默认的树，不含扩展名

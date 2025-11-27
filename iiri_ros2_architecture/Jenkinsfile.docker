@@ -1,0 +1,197 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'ARCHITECTURE',
+            choices: ['x86', 'arm'],
+            description: '目标架构'
+        )
+        booleanParam(
+            name: 'ENABLE_CERES',
+            defaultValue: false,
+            description: '是否启用 Ceres 优化（仅影响 intelligence_layer）'
+        )
+    }
+
+    environment {
+        GIT_REPO = 'http://192.168.1.55/ontology/iiri_ros2_architecture.git'
+        GIT_BRANCH = 'master'
+        GIT_CREDENTIALS = 'http://root:westlake@192.168.1.55'
+        DOCKER_IMAGE_X86 = '192.168.1.93/iiri/build_x86_ros2:latest'
+        DOCKER_IMAGE_ARM = '192.168.1.93/iiri/build_arm_ros2:latest'
+    }
+
+    stages {
+        stage('清理工作空间') {
+            steps {
+                echo '=== 清理旧的工作空间 ==='
+                deleteDir()
+            }
+        }
+
+        stage('拉取主仓库') {
+            steps {
+                echo '=== 拉取主仓库代码 ==='
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${GIT_BRANCH}"]],
+                    userRemoteConfigs: [[
+                        url: "${GIT_REPO}",
+                        credentialsId: 'git-cred'
+                    ]]
+                ])
+            }
+        }
+
+        stage('拉取 Docker 镜像') {
+            steps {
+                script {
+                    def dockerImage = params.ARCHITECTURE == 'x86' ? env.DOCKER_IMAGE_X86 : env.DOCKER_IMAGE_ARM
+
+                    echo "=== 拉取最新 Docker 镜像 ==="
+                    echo "目标镜像: ${dockerImage}"
+
+                    sh """
+                        echo "正在拉取镜像..."
+                        docker pull ${dockerImage}
+
+                        echo ""
+                        echo "=== 镜像信息 ==="
+                        docker images ${dockerImage} --format "table {{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedAt}}"
+
+                        echo ""
+                        echo "✓ 镜像拉取完成"
+                    """
+                }
+            }
+        }
+
+        stage('在 Docker 中导入分层代码') {
+            steps {
+                script {
+                    def dockerImage = params.ARCHITECTURE == 'x86' ? env.DOCKER_IMAGE_X86 : env.DOCKER_IMAGE_ARM
+
+                    echo "=== 使用 Docker 镜像: ${dockerImage} ==="
+                    echo '=== 在 Docker 容器中导入分层代码 ==='
+
+                    sh """
+                        docker run --rm \
+                            -v \$(pwd):\$(pwd) \
+                            -w \$(pwd) \
+                            ${dockerImage} \
+                            bash -c "
+                                # 配置 Git 凭据
+                                git config --global credential.helper store
+                                echo '${GIT_CREDENTIALS}' > ~/.git-credentials
+                                git config --global user.name 'Jenkins CI'
+                                git config --global user.email 'jenkins@iiri.local'
+
+                                # 检查 vcstool
+                                if ! command -v vcs &> /dev/null; then
+                                    echo 'ERROR: vcstool 未安装在 Docker 镜像中'
+                                    echo '请更新 Docker 镜像或手动安装 vcstool'
+                                    exit 1
+                                fi
+
+                                # 显示 vcstool 版本
+                                echo '=== vcstool 版本 ==='
+                                vcs --version
+
+                                # 显示当前配置
+                                echo '=== 当前 .repos 配置 ==='
+                                cat .repos
+
+                                # 导入分层代码
+                                chmod +x sync.sh
+                                ./sync.sh import
+
+                                # 显示导入状态
+                                echo '=== 已导入的仓库 ==='
+                                ./sync.sh status
+                            "
+                    """
+                }
+            }
+        }
+
+        stage('编译 Core Layer') {
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+                    echo "=== 编译 Core Layer (${params.ARCHITECTURE}) ==="
+                    sh """
+                        ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} core_layer
+                    """
+                }
+            }
+        }
+
+        stage('编译 Hardware Layer') {
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+                    echo "=== 编译 Hardware Layer (${params.ARCHITECTURE}) ==="
+                    sh """
+                        ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} hardware_layer
+                    """
+                }
+            }
+        }
+
+        stage('编译 Perception Layer') {
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+                    echo "=== 编译 Perception Layer (${params.ARCHITECTURE}) ==="
+                    sh """
+                        ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} perception_layer
+                    """
+                }
+            }
+        }
+
+        stage('编译 Intelligence Layer') {
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+                    echo "=== 编译 Intelligence Layer (${params.ARCHITECTURE}) ==="
+                    sh """
+                        ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} intelligence_layer
+                    """
+                }
+            }
+        }
+
+        stage('编译 Application Layer') {
+            steps {
+                script {
+                    def ceresFlag = params.ENABLE_CERES ? '--ceres' : ''
+                    echo "=== 编译 Application Layer (${params.ARCHITECTURE}) ==="
+                    sh """
+                        ./build_layered.sh -c ${params.ARCHITECTURE} ${ceresFlag} application_layer
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '=== 所有层编译成功! ==='
+        }
+        failure {
+            echo '=== 编译失败! ==='
+        }
+        always {
+            echo '=== 清理构建产物 ==='
+            sh '''
+                # 保留日志，清理其他构建产物以节省空间
+                if [ -d "build_${ARCHITECTURE}_shared" ]; then
+                    echo "清理构建目录: build_${ARCHITECTURE}_shared"
+                    rm -rf build_${ARCHITECTURE}_shared
+                fi
+            '''
+        }
+    }
+}

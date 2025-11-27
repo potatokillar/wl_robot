@@ -1,0 +1,3 @@
+path_tracker_test_node:
+  ros__parameters:
+    test_path_file: "traj-2025-06-17-16:15:28.csv"
